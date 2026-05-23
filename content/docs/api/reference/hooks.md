@@ -8,6 +8,8 @@ description: 导航系统的核心 API 参考
 
 导航系统是 OrbitDocs 的核心模块，负责扫描文件系统、构建导航树、提供查询接口。
 
+所有导航函数接收可选的 `projectId` 参数以支持多项目。不传参时扫描默认项目目录。
+
 ## 类型定义
 
 ### NavNode
@@ -90,6 +92,35 @@ function getPrevNext(slug: string[], projectId?: string): {
 ```typescript
 function getBreadcrumb(slug: string[], projectId?: string): { title: string; slug: string[] }[]
 ```
+
+### findContentFile(baseDir, slug)
+
+在文件系统中查找 MDX 文件（`lib/content.ts`）。
+
+```typescript
+function findContentFile(baseDir: string, slug: string[]): string | null
+```
+
+按以下顺序尝试查找：
+1. `{baseDir}/{slug}.md`
+2. `{baseDir}/{slug}.mdx`
+3. `{baseDir}/{slug}/index.md`
+4. `{baseDir}/{slug}/index.mdx`
+
+### generateStaticParams
+
+在 `app/docs/[[...slug]]/page.tsx` 中导出，构建时预渲染所有页面：
+
+```typescript
+export function generateStaticParams() {
+  // 遍历所有项目的所有页面
+  // 为每篇文档生成对应的静态 HTML
+  // 包含项目首页和项目选择页
+  return params  // { slug?: string[] }[]
+}
+```
+
+构建后路由从 `ƒ (Dynamic)` 变为 `● (SSG)`，首次访问无需等待。
 
 ## 导航树生成规则
 

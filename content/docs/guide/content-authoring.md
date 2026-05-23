@@ -102,11 +102,16 @@ content/
     └── reference/
 ```
 
-每个项目在 `lib/config.ts` 中注册：
+每个项目在 `config.toml` 中注册：
 
-```ts
-projects: [
-  { id: "docs", name: "项目文档", icon: "fa-book" },
-  { id: "sdk", name: "SDK 文档", icon: "fa-code" },
-]
+```toml
+[[project]]
+id = "docs"
+name = "项目文档"
+icon = "fa-book"
+
+[[project]]
+id = "sdk"
+name = "SDK 文档"
+icon = "fa-code"
 ```

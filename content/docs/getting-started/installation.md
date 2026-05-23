@@ -26,9 +26,12 @@ pnpm install
 │   ├── docs/
 │   │   ├── [[...slug]]/   # 动态文档路由
 │   │   ├── layout.tsx     # 三栏布局
-│   │   └── sidebar.tsx
-│   ├── globals.css      # 全局样式 + CSS 变量
-│   └── layout.tsx       # 根布局
+│   │   └── shell.tsx      # 客户端导航容器
+│   ├── layout.tsx       # 根布局 (Navbar)
+│   ├── page.tsx         # 首页 (重定向到 /docs)
+│   ├── not-found.tsx    # 自定义 404
+│   ├── sitemap.ts       # 站点地图
+│   └── globals.css      # 全局样式 + CSS 变量
 ├── components/
 │   ├── layout/          # 布局组件
 │   │   ├── navbar.tsx
@@ -36,8 +39,8 @@ pnpm install
 │   │   ├── toc.tsx
 │   │   ├── breadcrumb.tsx
 │   │   ├── search-dialog.tsx
-│   │   ├── footer.tsx
-│   │   └── back-to-top.tsx
+│   │   ├── back-to-top.tsx
+│   │   └── footer.tsx
 │   ├── mdx/             # MDX 组件
 │   │   ├── pre.tsx
 │   │   ├── a.tsx
@@ -45,17 +48,22 @@ pnpm install
 │   │   └── mdx-components.ts
 │   └── ui/              # shadcn/ui 组件
 ├── content/             # 文档源
-│   └── docs/            # "docs" 项目
+│   ├── docs/            # "docs" 项目
+│   └── api/             # "api" 项目（多项目示例）
 ├── lib/                 # 核心逻辑
-│   ├── config.ts
-│   ├── navigation.ts
-│   ├── mdx.ts
-│   ├── search.ts
-│   ├── search-data.ts
-│   ├── project.ts
-│   ├── icon.tsx
-│   ├── theme.tsx
-│   └── utils.ts
+│   ├── config.ts        # 配置类型 (pure, 无 fs)
+│   ├── config.server.ts # config.toml 解析 (server-only)
+│   ├── navigation.ts    # 导航树扫描 + 面包屑 + 前后页
+│   ├── mdx.ts           # MDX 编译 (compileMDX RSC API)
+│   ├── search-data.ts   # 搜索数据构建
+│   ├── project.ts       # 项目路由解析 (pure)
+│   ├── project.server.ts # 内容目录路径 (server-only)
+│   ├── content.ts       # findContentFile 文件查找
+│   ├── icon.tsx         # FontAwesome 图标组件
+│   ├── theme.tsx        # 主题持久化 (零闪烁)
+│   └── utils.ts         # cn() 工具函数
+├── config.toml          # 运行时站点配置 (Docker volume 挂载)
+├── .dockerignore
 ├── Dockerfile
 ├── docker-compose.yml
 └── next.config.ts
@@ -69,6 +77,29 @@ pnpm dev
 
 打开 http://localhost:3000 ，即可看到文档站点。
 
+## 配置
+
+站点配置通过 `config.toml` 管理，运行时生效，无需重新构建：
+
+```toml title="config.toml"
+[site]
+name = "OrbitDocs"
+description = "类 MkDocs 静态文档站点生成器"
+defaultProject = "docs"
+
+[logo]
+text = "OrbitDocs"
+light = "/logo-light.svg"
+dark = "/logo-dark.svg"
+
+[[project]]
+id = "docs"
+name = "OrbitDocs"
+icon = "fa-book"
+```
+
+配置文件可通过 Docker volume 挂载，部署后修改即时生效。
+
 ## 生产构建
 
 ```bash
@@ -76,4 +107,4 @@ pnpm build
 pnpm start
 ```
 
-构建产物在 `.next/` 目录，适用于 Docker 部署。
+构建产物在 `.next/standalone` 目录（`output: "standalone"` 模式），适用于 Docker 部署。

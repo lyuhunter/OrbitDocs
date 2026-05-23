@@ -35,7 +35,8 @@ description: OrbitDocs 的技术架构与设计理念
 ├── slug = [projectId]       → 项目首页
 ├── slug = [projectId, ...]  → 项目内页面
 └── slug = [other]           → 默认项目的页面（向后兼容）
-```
+
+路由使用 `generateStaticParams()` 构建时预渲染所有文档页面。两篇 demo 项目共生成 19 个静态页面，首次访问零等待。
 
 ## 三栏布局
 
@@ -76,7 +77,15 @@ description: OrbitDocs 的技术架构与设计理念
 
 ### 搜索
 
-使用 **FlexSearch** 构建客户端全文搜索，搜索索引预编译后通过 props 注入，不依赖 API 路由。
+使用 **cmdk**（⌘K 弹窗）实现客户端全文搜索。搜索索引在服务端预编译，通过 props 注入到 `SearchDialog` 组件。原生过滤，无需 debounce 或复杂状态管理。
+
+### 静态生成
+
+路由 `/docs/[[...slug]]` 使用 `generateStaticParams` 在构建时预渲染所有文档页面，首次访问无需等待。每个项目 + 每个页面均生成独立静态 HTML。
+
+### TOML 配置
+
+所有站点配置存储在 `config.toml` 中，通过 Docker volume 挂载到容器内。配置文件在模块加载时解析，运行时修改后重启容器即可生效，无需重新构建镜像。
 
 ## 部署
 

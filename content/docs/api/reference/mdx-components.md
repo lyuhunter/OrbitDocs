@@ -26,9 +26,9 @@ description: 内置 MDX 组件的 API 参考
 标准 Markdown 代码 fence 自动增强：
 
 ````markdown
-```typescript title="lib/config.ts"
+```typescript title="lib/mdx.ts"
 // title 属性显示文件名
-export const config = { ... }
+export async function getMDXContent(slug, projectId) { ... }
 ```
 ````
 
