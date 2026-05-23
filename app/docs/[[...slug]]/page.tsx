@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getMDXContent } from "@/lib/mdx"
-import { findPageBySlug, getPrevNext, getBreadcrumb } from "@/lib/navigation"
+import { findPageBySlug, getPrevNext } from "@/lib/navigation"
 import { siteConfig } from "@/lib/config"
+import { Breadcrumb } from "@/components/layout/breadcrumb"
 
 interface Props {
   params: Promise<{ slug?: string[] }>
@@ -30,10 +31,10 @@ export default async function DocsPage({
   const { content } = result
   const page = findPageBySlug(slug)
   const { prev, next } = getPrevNext(slug)
-  const breadcrumb = getBreadcrumb(slug)
 
   return (
     <article className="min-h-screen">
+      <Breadcrumb slug={slug} />
       {page && (
         <>
           <h1 className="scroll-m-20 text-4xl font-bold tracking-tight mb-8">

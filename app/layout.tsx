@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { Navbar } from "@/components/layout/navbar"
-import { Footer } from "@/components/layout/footer"
 import { siteConfig } from "@/lib/config"
 import { getSearchData } from "@/lib/search-data"
+import { ThemeScript } from "@/lib/theme"
 
 export const metadata: Metadata = {
   title: {
@@ -22,10 +22,12 @@ export default function RootLayout({
 
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="bg-background font-sans antialiased">
         <Navbar searchDocs={searchDocs} />
         {children}
-        <Footer />
       </body>
     </html>
   )

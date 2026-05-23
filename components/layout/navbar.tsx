@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, Moon, Sun } from "lucide-react"
@@ -9,6 +9,7 @@ import { siteConfig } from "@/lib/config"
 import type { SearchDoc } from "@/lib/search-data"
 import { Sidebar } from "./sidebar"
 import { SearchDialog } from "./search-dialog"
+import { resolveTheme, applyTheme, setStoredTheme } from "@/lib/theme"
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -88,10 +89,15 @@ export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
 function ThemeToggle() {
   const [dark, setDark] = useState(false)
 
+  useEffect(() => {
+    setDark(resolveTheme() === "dark")
+  }, [])
+
   function toggle() {
     const next = !dark
     setDark(next)
-    document.documentElement.classList.toggle("dark", next)
+    applyTheme(next ? "dark" : "light")
+    setStoredTheme(next ? "dark" : "light")
   }
 
   return (

@@ -9,6 +9,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/lib/icon"
 import type { NavNode } from "@/lib/navigation"
 
 export function Sidebar({
@@ -23,7 +24,7 @@ export function Sidebar({
   if (!nav) return null
 
   return (
-    <nav className="w-64 h-[calc(100vh-3.5rem)] overflow-y-auto border-r py-4 px-2">
+    <nav className="w-64 h-full overflow-y-auto py-4 px-2">
       <div className="space-y-1">
         {nav.map((node, i) => (
           <NavTreeNode
@@ -66,7 +67,7 @@ function NavTreeNode({
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
         {node.icon && (
-          <span className="text-muted-foreground text-xs">{node.icon}</span>
+          <Icon name={node.icon} className="text-muted-foreground h-3.5 w-3.5" />
         )}
         <span className="truncate">{node.title}</span>
       </Link>
@@ -82,7 +83,7 @@ function NavTreeNode({
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
         <ChevronRight className="h-3 w-3 shrink-0 transition-transform group-data-open:rotate-90" />
-        {node.icon && <span className="text-xs">{node.icon}</span>}
+        {node.icon && <Icon name={node.icon} className="h-3.5 w-3.5" />}
         <span>{node.title}</span>
       </CollapsibleTrigger>
       <CollapsibleContent>

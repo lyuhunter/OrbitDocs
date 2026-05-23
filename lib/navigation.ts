@@ -138,16 +138,33 @@ export function getPrevNext(slug: string[]): {
   }
 }
 
-export function getBreadcrumb(slug: string[]): { title: string; slug: string[] }[] {
-  const items: { title: string; slug: string[] }[] = []
-
-  for (let i = 0; i <= slug.length; i++) {
-    const currentSlug = slug.slice(0, i)
-    const page = findPageBySlug(currentSlug)
-    if (page) {
-      items.push({ title: page.title, slug: currentSlug })
+function findBreadcrumbPath(
+  nodes: NavNode[],
+  targetSlug: string[],
+  treeDepth: number = 0,
+): { title: string; slug: string[] }[] | null {
+  for (const node of nodes) {
+    if (node.type === "page") {
+      if (node.slug.join("/") === targetSlug.join("/")) {
+        return [{ title: node.title, slug: node.slug }]
+      }
+    } else {
+      const result = findBreadcrumbPath(node.children, targetSlug, treeDepth + 1)
+      if (result) {
+        const groupSlug = targetSlug.slice(0, treeDepth)
+        return [{ title: node.title, slug: groupSlug }, ...result]
+      }
     }
   }
+  return null
+}
 
-  return items
+export function getBreadcrumb(slug: string[]): { title: string; slug: string[] }[] {
+  if (slug.length === 0) {
+    const page = findPageBySlug([])
+    return page ? [{ title: page.title, slug: [] }] : []
+  }
+
+  const path = findBreadcrumbPath(getNavigation(), slug)
+  return path ?? []
 }
