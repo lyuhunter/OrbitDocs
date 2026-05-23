@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu, Moon, Sun } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { siteConfig } from "@/lib/config"
@@ -27,6 +28,7 @@ const iconButtonClass =
 
 export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
   const [open, setOpen] = useState(false)
+  const { logo } = siteConfig
 
   return (
     <header className="sticky top-0 z-50 h-14 bg-background/80 backdrop-blur-sm border-b">
@@ -43,7 +45,26 @@ export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
             </SheetContent>
           </Sheet>
           <Link href="/docs" className="flex items-center gap-2 font-semibold">
-            {siteConfig.name}
+            {logo.light ? (
+              <>
+                <Image
+                  src={logo.light}
+                  alt={siteConfig.name}
+                  width={24}
+                  height={24}
+                  className="block dark:hidden"
+                />
+                <Image
+                  src={logo.dark ?? logo.light}
+                  alt={siteConfig.name}
+                  width={24}
+                  height={24}
+                  className="hidden dark:block"
+                />
+              </>
+            ) : (
+              <span className="text-lg font-semibold">{logo.text}</span>
+            )}
           </Link>
         </div>
         <div className="flex items-center gap-1">

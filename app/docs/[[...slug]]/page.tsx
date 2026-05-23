@@ -1,12 +1,25 @@
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 import { getMDXContent } from "@/lib/mdx"
 import { findPageBySlug, getPrevNext, getBreadcrumb } from "@/lib/navigation"
+import { siteConfig } from "@/lib/config"
+
+interface Props {
+  params: Promise<{ slug?: string[] }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug = [] } = await params
+  const page = findPageBySlug(slug)
+  return {
+    title: page?.title ?? "Not Found",
+    description: page?.description ?? siteConfig.description,
+  }
+}
 
 export default async function DocsPage({
   params,
-}: {
-  params: Promise<{ slug?: string[] }>
-}) {
+}: Props) {
   const { slug = [] } = await params
   const result = await getMDXContent(slug)
 
