@@ -5,6 +5,7 @@ import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
 import type { MDXRemoteProps } from "next-mdx-remote/rsc"
+import { useMDXComponents } from "@/components/mdx/mdx-components"
 
 export type MDXFrontmatter = {
   title: string
@@ -43,6 +44,7 @@ export async function getMDXContent(
         ],
       },
     },
+    components: useMDXComponents() as MDXRemoteProps["components"],
   })
 
   return { content, frontmatter }
