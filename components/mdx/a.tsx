@@ -1,6 +1,8 @@
 import Link from "next/link"
 
-const internalPattern = /^\/(docs\/|$)/
+const internalPattern = /^\/(docs\/?|$)/
+
+const linkClass = "text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
 
 export function A({
   href,
@@ -13,7 +15,7 @@ export function A({
 
   if (internalPattern.test(href)) {
     return (
-      <Link href={href} {...props}>
+      <Link href={href} className={linkClass} {...props}>
         {children}
       </Link>
     )
@@ -24,7 +26,7 @@ export function A({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
+      className={linkClass}
       {...props}
     >
       {children}

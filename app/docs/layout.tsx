@@ -5,6 +5,7 @@ import type { NavNode } from "@/lib/navigation"
 import { DocsShell } from "./shell"
 import { Footer } from "@/components/layout/footer"
 import { BackToTop } from "@/components/layout/back-to-top"
+import { TableOfContents } from "@/components/layout/toc"
 
 export default function DocsLayout({
   children,
@@ -25,6 +26,7 @@ export default function DocsLayout({
         </main>
         <Footer />
       </div>
+      <TableOfContents />
       <BackToTop />
     </div>
   )

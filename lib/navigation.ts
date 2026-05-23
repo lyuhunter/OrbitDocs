@@ -60,7 +60,8 @@ function scanDir(dir: string, parentSlug: string[] = []): NavNode[] {
     if (entry.name.startsWith(".") || entry.name === "_category_.json") continue
 
     const fullPath = path.join(dir, entry.name)
-    const slug = [...parentSlug, path.parse(entry.name).name]
+    const name = path.parse(entry.name).name
+    const slug = name === "index" ? parentSlug : [...parentSlug, name]
 
     if (entry.isDirectory()) {
       const group = readCategoryJson(fullPath)

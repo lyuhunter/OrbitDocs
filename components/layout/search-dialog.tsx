@@ -39,7 +39,8 @@ export function SearchDialog({ docs, projectNames }: { docs: SearchDoc[]; projec
   function handleSelect(slug: string[], projectId?: string) {
     setOpen(false)
     const base = projectId ?? "docs"
-    router.push(`/docs/${base}/${slug.join("/")}`)
+    const path = slug.length > 0 ? slug.join("/") : ""
+    router.push(`/docs/${base}${path ? "/" + path : ""}`)
   }
 
   const grouped = new Map<string, SearchDoc[]>()

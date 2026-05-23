@@ -85,39 +85,27 @@ export default async function DocsPage({ params }: Props) {
   return (
     <article className="min-h-screen">
       <Breadcrumb slug={pageSlug} projectId={projectId} />
-      {page && (
-        <>
-          <h1 className="scroll-m-20 text-4xl font-bold tracking-tight mb-8">
-            {page.title}
-          </h1>
-          {page.description && (
-            <p className="text-lg text-muted-foreground mb-8">
-              {page.description}
-            </p>
-          )}
-        </>
-      )}
       <div className="prose-custom">{content}</div>
       <div className="flex items-center justify-between mt-16 pt-8 border-t">
         {prev ? (
-          <a
+          <Link
             href={`/docs/${projectId}/${prev.slug.join("/")}`}
             className="flex flex-col gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="text-xs">← 上一篇</span>
             <span className="font-medium">{prev.title}</span>
-          </a>
+          </Link>
         ) : (
           <div />
         )}
         {next ? (
-          <a
+          <Link
             href={`/docs/${projectId}/${next.slug.join("/")}`}
             className="flex flex-col gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors text-right"
           >
             <span className="text-xs">下一篇 →</span>
             <span className="font-medium">{next.title}</span>
-          </a>
+          </Link>
         ) : (
           <div />
         )}

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation"
 import { resolveProject } from "@/lib/project"
-import { DocsSidebar } from "./sidebar"
+import { Sidebar } from "@/components/layout/sidebar"
 import type { NavNode } from "@/lib/navigation"
 import type { ProjectConfig } from "@/lib/config"
 
@@ -22,7 +22,7 @@ export function DocsShell({
 
   return (
     <aside className="hidden lg:block sticky top-14 self-start h-[calc(100vh-3.5rem)] border-r">
-      <DocsSidebar nav={nav} projectId={projectId} />
+      <Sidebar nav={nav} projectId={projectId} />
     </aside>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 
 type Heading = {
   id: string
@@ -11,6 +12,7 @@ type Heading = {
 export function TableOfContents() {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>("")
+  const pathname = usePathname()
 
   useEffect(() => {
     const elements = Array.from(
@@ -21,6 +23,7 @@ export function TableOfContents() {
       level: el.tagName === "H2" ? 2 : 3,
     }))
     setHeadings(elements)
+    setActiveId("")
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -39,7 +42,7 @@ export function TableOfContents() {
     }
 
     return () => observer.disconnect()
-  }, [])
+  }, [pathname])
 
   if (headings.length === 0) return null
 
