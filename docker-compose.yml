@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./content:/app/content
+      - ./components:/app/components
+      - ./lib:/app/lib
+      - ./app:/app/app
+      - ./public:/app/public
+    environment:
+      - NODE_ENV=development
+    command: pnpm dev
