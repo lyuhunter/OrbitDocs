@@ -30,7 +30,7 @@ jobs:
           EXPORT: "true"
           REPO_NAME: ${{ github.event.repository.name }}
       - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: ./out
 

@@ -6,6 +6,10 @@ import { getSearchData } from "@/lib/search-data"
 import { getNavigation } from "@/lib/navigation"
 import { ThemeScript } from "@/lib/theme"
 
+const basePath = process.env.EXPORT === "true" && process.env.REPO_NAME
+  ? `/${process.env.REPO_NAME}`
+  : ""
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -13,7 +17,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: "/favicon.svg",
+    icon: `${basePath}/favicon.svg`,
   },
 }
 
@@ -39,7 +43,7 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body className="bg-background font-sans antialiased">
-        <Navbar searchDocs={searchDocs} navs={navs} siteConfig={siteConfig} projectNames={projectNames} />
+        <Navbar basePath={basePath} searchDocs={searchDocs} navs={navs} siteConfig={siteConfig} projectNames={projectNames} />
         {children}
       </body>
     </html>

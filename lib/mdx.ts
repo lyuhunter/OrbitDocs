@@ -4,6 +4,8 @@ import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
 import type { MDXRemoteProps } from "next-mdx-remote/rsc"
+import { visit } from "unist-util-visit"
+import type { Element } from "hast"
 import { useMDXComponents } from "@/components/mdx/mdx-components"
 import { getContentDir } from "./project.server"
 import { findContentFile } from "./content"
@@ -13,6 +15,21 @@ export type MDXFrontmatter = {
   description?: string
   order?: number
   icon?: string
+}
+
+const basePath = process.env.EXPORT === "true" && process.env.REPO_NAME
+  ? `/${process.env.REPO_NAME}`
+  : ""
+
+function rehypeBasePathImages() {
+  if (!basePath) return () => {}
+  return (tree: unknown) => {
+    visit(tree as { type: string; children: unknown[] }, "element", (node: Element) => {
+      if (node.tagName === "img" && typeof node.properties?.src === "string" && node.properties.src.startsWith("/")) {
+        node.properties.src = `${basePath}${node.properties.src}`
+      }
+    })
+  }
 }
 
 const prettyCodeOptions = {
@@ -44,7 +61,7 @@ export async function getMDXContent(
       parseFrontmatter: true,
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug, [rehypePrettyCode, prettyCodeOptions]],
+        rehypePlugins: [rehypeSlug, [rehypePrettyCode, prettyCodeOptions], rehypeBasePathImages],
       },
     },
     components: useMDXComponents() as MDXRemoteProps["components"],

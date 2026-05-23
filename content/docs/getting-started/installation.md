@@ -44,6 +44,7 @@ pnpm install
 │   ├── mdx/             # MDX 组件
 │   │   ├── pre.tsx
 │   │   ├── a.tsx
+│   │   ├── img.tsx
 │   │   ├── admonition.tsx
 │   │   └── mdx-components.ts
 │   └── ui/              # shadcn/ui 组件

@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     basePath: `/${process.env.REPO_NAME}`,
     assetPrefix: `/${process.env.REPO_NAME}`,
   }),
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

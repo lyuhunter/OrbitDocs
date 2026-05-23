@@ -36,7 +36,7 @@ description: OrbitDocs 的技术架构与设计理念
 ├── slug = [projectId, ...]  → 项目内页面
 └── slug = [other]           → 默认项目的页面（向后兼容）
 
-路由使用 `generateStaticParams()` 构建时预渲染所有文档页面。两篇 demo 项目共生成 19 个静态页面，首次访问零等待。
+路由使用 `generateStaticParams()` 构建时预渲染所有文档页面。两篇 demo 项目共生成 20 个静态页面，首次访问零等待。
 
 ## 三栏布局
 
@@ -73,7 +73,7 @@ description: OrbitDocs 的技术架构与设计理念
 
 ### MDX 编译
 
-使用 `next-mdx-remote` 的 RSC API (`compileMDX`)，配合 rehype-pretty-code（代码高亮）、rehype-slug（锚点）、remark-gfm（GFM 语法）。
+使用 `next-mdx-remote` 的 RSC API (`compileMDX`)，配合 rehype-pretty-code（代码高亮）、rehype-slug（标题锚点）、remark-gfm（GFM 语法）。通过 `useMDXComponents()` 注册 `pre`、`a`、`img`、`Admonition` 等自定义组件，覆盖标准 Markdown 元素。内置 `rehypeBasePathImages` 插件自动为所有 Markdown 图片添加 basePath 前缀，确保 GitHub Pages 静态导出后图片路径正确。
 
 ### 搜索
 

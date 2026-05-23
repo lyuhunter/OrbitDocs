@@ -33,11 +33,13 @@ const iconButtonClass =
   "inline-flex items-center justify-center rounded-md text-sm font-medium h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors"
 
 export function Navbar({
+  basePath = "",
   searchDocs,
   navs,
   siteConfig,
   projectNames,
 }: {
+  basePath?: string
   searchDocs?: SearchDoc[]
   navs?: Record<string, NavNode[]>
   siteConfig: SiteConfig
@@ -76,14 +78,14 @@ export function Navbar({
             {logo.light ? (
               <>
                 <Image
-                  src={logo.light}
+                  src={`${basePath}${logo.light}`}
                   alt={logo.text || siteConfig.name}
                   width={24}
                   height={24}
                   className="block dark:hidden shrink-0"
                 />
                 <Image
-                  src={logo.dark ?? logo.light}
+                  src={`${basePath}${logo.dark ?? logo.light}`}
                   alt={logo.text || siteConfig.name}
                   width={24}
                   height={24}
