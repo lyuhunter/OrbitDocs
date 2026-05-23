@@ -74,19 +74,25 @@ function NavTreeNode({
   }
 
   return (
-    <Collapsible defaultOpen={!node.collapsed}>
+    <Collapsible defaultOpen={!node.collapsed} className="group">
       <CollapsibleTrigger
         className={cn(
           "flex w-full items-center gap-2 px-3 py-1.5 text-sm font-semibold text-muted-foreground rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
         )}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
-        <ChevronRight className="h-3 w-3 shrink-0 transition-transform [[data-state=open]>&]:rotate-90" />
+        <ChevronRight className="h-3 w-3 shrink-0 transition-transform group-data-open:rotate-90" />
         {node.icon && <span className="text-xs">{node.icon}</span>}
         <span>{node.title}</span>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="mt-0.5 space-y-0.5">
+        <div className="relative mt-0.5 space-y-0.5">
+          {node.children.length > 0 && (
+            <div
+              className="absolute top-0 bottom-0 w-px bg-border/60 z-10 pointer-events-none"
+              style={{ left: `${(depth + 1) * 16 + 8}px` }}
+            />
+          )}
           {node.children.map((child, i) => (
             <NavTreeNode
               key={i}
