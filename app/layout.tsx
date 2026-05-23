@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { Navbar } from "@/components/layout/navbar"
-import { siteConfig } from "@/lib/config"
+import { siteConfig } from "@/lib/config.server"
 import { getSearchData } from "@/lib/search-data"
 import { getNavigation } from "@/lib/navigation"
 import { ThemeScript } from "@/lib/theme"
@@ -26,13 +26,17 @@ export default function RootLayout({
     navs[project.id] = getNavigation(project.id)
   }
 
+  const projectNames = Object.fromEntries(
+    siteConfig.projects.map((p) => [p.id, p.name]),
+  )
+
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
       <body className="bg-background font-sans antialiased">
-        <Navbar searchDocs={searchDocs} navs={navs} />
+        <Navbar searchDocs={searchDocs} navs={navs} siteConfig={siteConfig} projectNames={projectNames} />
         {children}
       </body>
     </html>

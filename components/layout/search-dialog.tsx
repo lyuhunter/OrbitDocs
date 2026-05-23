@@ -11,10 +11,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { siteConfig } from "@/lib/config"
 import type { SearchDoc } from "@/lib/search-data"
 
-export function SearchDialog({ docs }: { docs: SearchDoc[] }) {
+export function SearchDialog({ docs, projectNames }: { docs: SearchDoc[]; projectNames: Record<string, string> }) {
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
@@ -49,10 +48,6 @@ export function SearchDialog({ docs }: { docs: SearchDoc[] }) {
     if (!grouped.has(pid)) grouped.set(pid, [])
     grouped.get(pid)!.push(doc)
   }
-
-  const projectNames = Object.fromEntries(
-    siteConfig.projects.map((p) => [p.id, p.name]),
-  )
 
   return (
     <>

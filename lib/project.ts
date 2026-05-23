@@ -1,20 +1,14 @@
-import path from "path"
-import process from "process"
-import { siteConfig } from "./config"
-
-export function getProject(id: string) {
-  return siteConfig.projects.find((p) => p.id === id)
-}
-
 export function resolveProject(
   slug: string[],
+  projects: { id: string }[],
+  defaultProject: string,
 ): { projectId: string; pageSlug: string[] } {
-  if (slug.length > 0 && siteConfig.projects.some((p) => p.id === slug[0])) {
+  if (slug.length > 0 && projects.some((p) => p.id === slug[0])) {
     return { projectId: slug[0], pageSlug: slug.slice(1) }
   }
-  return { projectId: siteConfig.defaultProject!, pageSlug: slug }
+  return { projectId: defaultProject, pageSlug: slug }
 }
 
-export function getContentDir(projectId: string): string {
-  return path.join(process.cwd(), "content", projectId)
+export function getProject<T extends { id: string }>(id: string, projects: T[]): T | undefined {
+  return projects.find((p) => p.id === id)
 }

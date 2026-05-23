@@ -4,18 +4,13 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useParams, usePathname, useRouter } from "next/navigation"
-import { Menu, Moon, Sun, ChevronDown } from "lucide-react"
+import { Menu, Moon, Sun } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { siteConfig } from "@/lib/config"
-import { resolveProject, getProject } from "@/lib/project"
+import { resolveProject } from "@/lib/project"
+import { cn } from "@/lib/utils"
 import type { SearchDoc } from "@/lib/search-data"
 import type { NavNode } from "@/lib/navigation"
+import type { SiteConfig } from "@/lib/config"
 import { Icon } from "@/lib/icon"
 import { Sidebar } from "./sidebar"
 import { SearchDialog } from "./search-dialog"
@@ -40,9 +35,13 @@ const iconButtonClass =
 export function Navbar({
   searchDocs,
   navs,
+  siteConfig,
+  projectNames,
 }: {
   searchDocs?: SearchDoc[]
   navs?: Record<string, NavNode[]>
+  siteConfig: SiteConfig
+  projectNames: Record<string, string>
 }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
@@ -51,8 +50,8 @@ export function Navbar({
   const { logo } = siteConfig
 
   const slug = (params.slug as string[]) ?? []
-  const { projectId } = resolveProject(slug)
-  const currentProject = getProject(projectId)
+  const { projectId } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
+  const currentProject = siteConfig.projects.find((p) => p.id === projectId)
 
   const currentNav = navs?.[projectId]
 
@@ -97,41 +96,33 @@ export function Navbar({
           </Link>
 
           {onDocsPage && siteConfig.projects.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ml-1 px-2 py-1 rounded-md hover:bg-accent">
-                {currentProject?.icon && (
-                  <Icon name={currentProject.icon} className="h-3.5 w-3.5" />
-                )}
-                <span>{currentProject?.name ?? "选择项目"}</span>
-                <ChevronDown className="h-3 w-3" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {siteConfig.projects.map((project) => (
-                  <DropdownMenuItem
+            <div className="hidden sm:flex items-center gap-1 ml-2">
+              {siteConfig.projects.map((project) => {
+                const active = project.id === projectId
+                return (
+                  <Link
                     key={project.id}
-                    onClick={() => router.push(`/docs/${project.id}`)}
-                    className="flex items-center gap-2 cursor-pointer"
+                    href={`/docs/${project.id}`}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors",
+                      active
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    )}
                   >
                     {project.icon && (
-                      <Icon name={project.icon} className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <Icon name={project.icon} className="h-3.5 w-3.5" />
                     )}
-                    <div>
-                      <div className="text-sm font-medium">{project.name}</div>
-                      {project.description && (
-                        <div className="text-xs text-muted-foreground">
-                          {project.description}
-                        </div>
-                      )}
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <span>{project.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
           )}
         </div>
 
         <div className="flex items-center gap-1">
-          {searchDocs && <SearchDialog docs={searchDocs} />}
+          {searchDocs && <SearchDialog docs={searchDocs} projectNames={projectNames} />}
           <ThemeToggle />
           <a
             href={siteConfig.links.github}

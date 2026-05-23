@@ -1,5 +1,5 @@
 import { getAllPages } from "./navigation"
-import { siteConfig } from "./config"
+import { siteConfig } from "./config.server"
 
 export type SearchDoc = {
   id: string

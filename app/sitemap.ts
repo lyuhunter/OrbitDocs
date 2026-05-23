@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next"
-import { siteConfig } from "@/lib/config"
+import { siteConfig } from "@/lib/config.server"
 import { getAllPages } from "@/lib/navigation"
 
 export default function sitemap(): MetadataRoute.Sitemap {

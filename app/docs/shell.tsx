@@ -4,11 +4,20 @@ import { useParams } from "next/navigation"
 import { resolveProject } from "@/lib/project"
 import { DocsSidebar } from "./sidebar"
 import type { NavNode } from "@/lib/navigation"
+import type { ProjectConfig } from "@/lib/config"
 
-export function DocsShell({ navs }: { navs: Record<string, NavNode[]> }) {
+export function DocsShell({
+  navs,
+  projects,
+  defaultProject,
+}: {
+  navs: Record<string, NavNode[]>
+  projects: ProjectConfig[]
+  defaultProject: string
+}) {
   const params = useParams()
   const slug = (params.slug as string[]) ?? []
-  const { projectId } = resolveProject(slug)
+  const { projectId } = resolveProject(slug, projects, defaultProject)
   const nav = navs[projectId] ?? []
 
   return (

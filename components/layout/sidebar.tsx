@@ -42,6 +42,8 @@ export function Sidebar({
   )
 }
 
+const INDENT = 20
+
 function NavTreeNode({
   node,
   pathname,
@@ -63,22 +65,30 @@ function NavTreeNode({
     const active = pathname === href
 
     return (
-      <Link
-        href={href}
-        onClick={onNavClick}
-        className={cn(
-          "flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors",
-          active
-            ? "bg-accent text-accent-foreground font-medium"
-            : "text-foreground hover:bg-accent hover:text-accent-foreground"
+      <div className="relative">
+        {depth > 0 && (
+          <div
+            className="absolute top-1/2 -translate-y-1/2 h-px bg-border/60 pointer-events-none"
+            style={{ left: `${depth * INDENT + 10}px`, width: "8px" }}
+          />
         )}
-        style={{ paddingLeft: `${depth * 16 + 12}px` }}
-      >
-        {node.icon && (
-          <Icon name={node.icon} className="text-muted-foreground h-3.5 w-3.5" />
-        )}
-        <span className="truncate">{node.title}</span>
-      </Link>
+        <Link
+          href={href}
+          onClick={onNavClick}
+          className={cn(
+            "flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors",
+            active
+              ? "bg-accent text-accent-foreground font-medium"
+              : "text-foreground hover:bg-accent hover:text-accent-foreground"
+          )}
+          style={{ paddingLeft: `${depth * INDENT + 28}px` }}
+        >
+          {node.icon && (
+            <Icon name={node.icon} className="text-muted-foreground h-3.5 w-3.5" />
+          )}
+          <span className="truncate">{node.title}</span>
+        </Link>
+      </div>
     )
   }
 
@@ -88,7 +98,7 @@ function NavTreeNode({
         className={cn(
           "flex w-full items-center gap-2 px-3 py-1.5 text-sm font-semibold text-muted-foreground rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
         )}
-        style={{ paddingLeft: `${depth * 16 + 12}px` }}
+        style={{ paddingLeft: `${depth * INDENT + 12}px` }}
       >
         <ChevronRight className="h-3 w-3 shrink-0 transition-transform group-data-open:rotate-90" />
         {node.icon && <Icon name={node.icon} className="h-3.5 w-3.5" />}
@@ -99,7 +109,7 @@ function NavTreeNode({
           {node.children.length > 0 && (
             <div
               className="absolute top-0 bottom-0 w-px bg-border/60 z-10 pointer-events-none"
-              style={{ left: `${(depth + 1) * 16 + 8}px` }}
+              style={{ left: `${(depth + 1) * INDENT + 10}px` }}
             />
           )}
           {node.children.map((child, i) => (

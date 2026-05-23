@@ -3,8 +3,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { getMDXContent } from "@/lib/mdx"
 import { findPageBySlug, getPrevNext } from "@/lib/navigation"
-import { siteConfig } from "@/lib/config"
-import { resolveProject, getProject } from "@/lib/project"
+import { siteConfig } from "@/lib/config.server"
+import { resolveProject } from "@/lib/project"
 import { Breadcrumb } from "@/components/layout/breadcrumb"
 import { Icon } from "@/lib/icon"
 
@@ -14,9 +14,9 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug = [] } = await params
-  const { projectId, pageSlug } = resolveProject(slug)
+  const { projectId, pageSlug } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
   const page = findPageBySlug(pageSlug, projectId)
-  const project = getProject(projectId)
+  const project = siteConfig.projects.find((p) => p.id === projectId)
   return {
     title: page?.title ?? project?.name ?? "Not Found",
     description: page?.description ?? siteConfig.description,
@@ -64,7 +64,7 @@ function ProjectLanding() {
 
 export default async function DocsPage({ params }: Props) {
   const { slug = [] } = await params
-  const { projectId, pageSlug } = resolveProject(slug)
+  const { projectId, pageSlug } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
 
   const isLanding = slug.length === 0 && siteConfig.projects.length > 1
 
