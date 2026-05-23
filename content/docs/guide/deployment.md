@@ -139,15 +139,35 @@ tsconfig.json
 项目包含 GitHub Actions 工作流，推送 `main` 分支后自动构建并部署到 GitHub Pages：
 
 ```yaml title=".github/workflows/deploy.yml"
-on:
-  push:
-    branches: [main]
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+        env:
+          EXPORT: "true"
+          REPO_NAME: OrbitDocs
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    steps:
+      - uses: actions/deploy-pages@v5
 ```
 
 工作流程：
 
 1. `actions/checkout` 拉取代码
-2. `pnpm install` 安装依赖
+2. `actions/setup-node` + `pnpm/action-setup` 配置环境
+3. `pnpm install` 安装依赖
 3. `EXPORT=true pnpm build` 以静态导出模式构建（输出到 `out/` 目录）
 4. `actions/upload-pages-artifact` 上传构建产物
 5. `actions/deploy-pages` 部署到 GitHub Pages
