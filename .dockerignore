@@ -2,6 +2,7 @@
 .gitignore
 node_modules
 .next
+.github
 Dockerfile
 Dockerfile.dev
 docker-compose.yml

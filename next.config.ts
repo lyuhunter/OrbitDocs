@@ -1,10 +1,14 @@
 import type { NextConfig } from "next";
 
+const isExport = process.env.EXPORT === "true"
+
 const nextConfig: NextConfig = {
-  output: "standalone",
-  // 静态导出: 注释上面一行，取消注释下面两行
-  // output: "export",
-  // trailingSlash: true,
+  output: isExport ? "export" : "standalone",
+  ...(isExport && { trailingSlash: true }),
+  ...(isExport && process.env.REPO_NAME && {
+    basePath: `/${process.env.REPO_NAME}`,
+    assetPrefix: `/${process.env.REPO_NAME}`,
+  }),
 };
 
 export default nextConfig;

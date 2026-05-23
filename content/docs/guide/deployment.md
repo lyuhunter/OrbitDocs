@@ -134,6 +134,37 @@ tsconfig.json
 - Turbopack HMR 正常工作
 - `node_modules` 保留在镜像内，不挂载宿主目录
 
+## GitHub Pages 自动部署
+
+项目包含 GitHub Actions 工作流，推送 `main` 分支后自动构建并部署到 GitHub Pages：
+
+```yaml title=".github/workflows/deploy.yml"
+on:
+  push:
+    branches: [main]
+```
+
+工作流程：
+
+1. `actions/checkout` 拉取代码
+2. `pnpm install` 安装依赖
+3. `EXPORT=true pnpm build` 以静态导出模式构建（输出到 `out/` 目录）
+4. `actions/upload-pages-artifact` 上传构建产物
+5. `actions/deploy-pages` 部署到 GitHub Pages
+
+### 启用步骤
+
+1. 在 GitHub 仓库 Settings → Pages 中，将 Source 设为 **GitHub Actions**
+2. 推送 `main` 分支后，Actions 自动运行
+3. 部署完成后在 Settings → Pages 可查看站点 URL
+
+### 本地构建预览
+
+```bash
+EXPORT=true REPO_NAME=OrbitDocs pnpm build
+npx serve out
+```
+
 ## 环境变量
 
 | 变量 | 说明 | 默认值 |
