@@ -33,17 +33,20 @@ icon: fa-house
 - **多项目支持** — 同一站点承载多套文档
 - **代码高亮** — rehype-pretty-code + Shiki，支持文件名和复制
 - **TOC 导航** — 右侧文章目录，滚动高亮
-- **Docker 部署** — 开发/生产 Docker 配置
+- **Docker 部署** — 开发/生产 Docker 配置，config.toml 运行时挂载
+- **GitHub Pages 自动部署** — 推送 main 自动构建发布
+- **SSG 预渲染** — generateStaticParams 构建时生成所有页面
 - **语义化 CSS 变量** — OKLCH 色彩体系，完全可定制
 
 ## 快速开始
 
 ```bash
-pnpm dev        # 开发 (Turbopack HMR)
-pnpm build      # 生产构建 (standalone 模式，适用于 Docker)
-pnpm start      # 生产环境启动
-pnpm lint       # ESLint 检查
-pnpm typecheck  # TypeScript 类型检查
+pnpm dev       # 开发 (Turbopack HMR)
+pnpm build     # 构建 (standalone 模式，适用于 Docker)
+pnpm start     # 生产环境启动
+pnpm lint      # ESLint
+pnpm typecheck # TypeScript 类型检查
+EXPORT=true REPO_NAME=OrbitDocs pnpm build  # 静态导出 (GitHub Pages)
 ```
 
 ## 目录结构
@@ -76,12 +79,18 @@ lib/              ← 核心逻辑
   theme.tsx       ← 主题持久化
 
 app/              ← Next.js App Router
-  docs/[[...slug]]/ → 动态文档路由
-  layout.tsx      ← 根布局
-  page.tsx        ← 首页
+  docs/[[...slug]]/ → 动态文档路由 (SSG)
+  layout.tsx      ← 根布局 (Navbar)
+  page.tsx        ← 首页 (重定向到 /docs)
+  not-found.tsx   ← 自定义 404
+  sitemap.ts      ← 站点地图
   globals.css     ← 样式
 
+.github/workflows/
+  deploy.yml      ← GitHub Pages 自动部署
+
 config.toml       ← 运行时站点配置 (Docker volume)
+.dockerignore
 Dockerfile
 docker-compose.yml
 ```

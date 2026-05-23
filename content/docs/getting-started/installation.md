@@ -102,9 +102,19 @@ icon = "fa-book"
 
 ## 生产构建
 
+### Docker 部署
+
 ```bash
 pnpm build
 pnpm start
 ```
 
 构建产物在 `.next/standalone` 目录（`output: "standalone"` 模式），适用于 Docker 部署。
+
+### GitHub Pages 静态导出
+
+```bash
+EXPORT=true REPO_NAME=OrbitDocs pnpm build
+```
+
+构建产物在 `out/` 目录，自动适配 GitHub Pages 的 `basePath`。推送 `main` 分支后 GitHub Actions 自动执行此流程并部署。

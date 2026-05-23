@@ -72,6 +72,36 @@ OrbitDocs 支持在 Markdown 中直接使用 React 组件：
 
 ```mdx
 <Admonition type="warning">
-部署前请务必阅读安全配置章节。
+部署前请务必阅读部署章节。
 </Admonition>
+```
+
+## 构建和部署
+
+### Docker 部署
+
+```bash
+pnpm build
+pnpm start
+```
+
+或使用 Docker Compose：
+
+```bash
+docker compose up app
+```
+
+### GitHub Pages
+
+推送 `main` 分支自动触发构建和部署：
+
+```bash
+git push origin main
+```
+
+本地预览静态导出：
+
+```bash
+EXPORT=true REPO_NAME=OrbitDocs pnpm build
+npx serve out
 ```
