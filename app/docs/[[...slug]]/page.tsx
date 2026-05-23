@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { getMDXContent } from "@/lib/mdx"
-import { findPageBySlug, getBreadcrumb, getPrevNext } from "@/lib/navigation"
+import { findPageBySlug, getAllPages, getBreadcrumb, getPrevNext } from "@/lib/navigation"
 import { siteConfig } from "@/lib/config.server"
 import { resolveProject } from "@/lib/project"
 import { getContentDir } from "@/lib/project.server"
@@ -12,6 +12,21 @@ import { Icon } from "@/lib/icon"
 
 interface Props {
   params: Promise<{ slug?: string[] }>
+}
+
+export function generateStaticParams() {
+  const params: { slug?: string[] }[] = [{ slug: [] }]
+
+  for (const project of siteConfig.projects) {
+    params.push({ slug: [project.id] })
+    const pages = getAllPages(project.id)
+    for (const page of pages) {
+      if (page.slug.length === 0) continue
+      params.push({ slug: [project.id, ...page.slug] })
+    }
+  }
+
+  return params
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

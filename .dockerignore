@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+.next
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
+*.md
+.eslintrc*
+.prettierrc*
+tsconfig.json

@@ -23,11 +23,11 @@
 | React | 19 | UI 运行时 |
 | Tailwind CSS | 4.3 | 原子化 CSS |
 | shadcn/ui | 4.8 | 组件库 (语义化 CSS 变量, @base-ui/react) |
-| FontAwesome | — | 图标策略待引入 |
+| FontAwesome | 7 | 图标 (导航/Admonition) |
 | Lucide | latest | 图标 (shadcn 内置) |
 | next-mdx-remote | 6 | 运行时 MDX 编译 (RSC API) |
 | rehype-pretty-code | latest | 代码高亮 (shiki) |
-| flexsearch | latest | 客户端全文搜索 |
+| cmdk | latest | 客户端搜索 (⌘K 弹窗) |
 | TypeScript | 5 | 类型安全 |
 
 ## 项目当前状态
@@ -42,23 +42,37 @@
   ✓ MDX 编译器 (rehype-pretty-code 代码高亮 + rehype-slug 锚点)
   ✓ 三栏布局 (Navbar + Sidebar + Content)
   ✓ 导航树 (content/ 文件系统扫描, _category_.json 分组, order 排序)
-  ✓ 全文搜索 (flexsearch, ⌘K 快捷键)
+  ✓ 全文搜索 (cmdk, ⌘K 快捷键)
   ✓ 暗色模式切换
   ✓ 响应式布局 (移动端 Sheet 抽屉)
   ✓ MDX 自定义组件 (代码块复制/文件名/智能链接/Admonition)
-  ✓ 面包屑导航
+  ✓ 面包屑导航 (shadcn/ui 组件)
   ✓ 右侧 TOC (IntersectionObserver 滚动高亮)
   ✓ 前后篇导航
   ✓ Docker 生产/开发配置
+  ✓ FontAwesome 图标集成 (Icon 组件, fa-xxx 命名)
+  ✓ 多项目管理 (content/{projectId}/ 隔离, 项目选择器)
+  ✓ TOML 配置管理 (config.toml, Docker volume 挂载, 运行时生效)
+  ✓ 站点配置系统 (logo light/dark, footer copyright/links/poweredBy)
+  ✓ 搜索多项目分组 (cmdk 原生过滤, 按项目分组显示)
+  ✓ 主题持久化 (零闪烁, 内联 script + localStorage)
+  ✓ 自定义 404 页面
+  ✓ Sitemap 生成 (/sitemap.xml)
+  ✓ 服务端/客户端模块分离 (lib/content.ts, lib/config.ts, lib/config.server.ts, lib/project.server.ts)
+  ✓ 重复 key 修复 (Breadcrumb key 使用 "root" 兜底)
+  ✓ `<li>` 嵌套修复 (BreadcrumbSeparator 与 BreadcrumbItem 平级)
+  ✓ 代码块强化 (data-title 文件名, data-language 显示标签, 复制按钮始终可见)
+  ✓ 智能链接 (内部/外部链接一致样式)
+  ✓ TOC 三路同步 (click/hashchange/IntersectionObserver)
 
 待实现:
-  ☐ FontAwesome 图标集成 (导航/Admonition)
-  ☐ 静态导出模式测试
+  ☐ 静态导出模式测试 (output: "export")
   ☐ PWA / 离线支持
-  ☐ 自定义 404 页面
   ☐ 首页重定向美化
-  ☐ Sitemap 生成
   ☐ 多语言 (i18n)
+  ☐ generateStaticParams 支持静态导出
+  ☐ .dockerignore (已创建)
+  ☐ 清理无用依赖 (已移除 @mdx-js/mdx, remark-frontmatter; shadcn → devDependencies)
 ```
 
 ## 开发命令
@@ -108,15 +122,19 @@ components/
 lib/
   mdx.ts          ← MDX 编译 (compileMDX RSC API)
   navigation.ts   ← 文件系统扫描 + 导航树 + 面包屑 + 前后页
-  search.ts       ← flexsearch 客户端搜索
   search-data.ts  ← 服务端搜索数据构建
   config.ts       ← 站点全局配置
+  config.server.ts ← config.toml 解析 (服务端)
+  project.ts      ← 项目解析 (纯函数)
+  project.server.ts ← 获取内容目录 (服务端)
+  content.ts      ← findContentFile 文件查找
   utils.ts        ← cn() 工具函数
 
 app/
   docs/[[...slug]]/page.tsx ← 动态文档路由
   docs/layout.tsx            ← 三栏布局 (Sidebar + Content)
-  docs/sidebar.tsx           ← 客户端 Sidebar 包装
+  docs/sidebar.tsx           ← 客户端 Sidebar 包装 (已删除)
+  docs/shell.tsx             ← DocsShell 客户端容器
   layout.tsx                 ← 根布局 (Navbar)
   page.tsx                   ← 首页 (重定向到 /docs)
   globals.css                ← Tailwind 4 + 语义化变量
