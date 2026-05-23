@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { Navbar } from "@/components/layout/navbar"
+import { getSearchData } from "@/lib/search-data"
 
 export const metadata: Metadata = {
   title: "OrbitDocs",
@@ -12,10 +13,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const searchDocs = getSearchData()
+
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <Navbar />
+        <Navbar searchDocs={searchDocs} />
         {children}
       </body>
     </html>

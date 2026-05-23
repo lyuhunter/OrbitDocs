@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, Search, Moon, Sun } from "lucide-react"
+import { Menu, Moon, Sun } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { siteConfig } from "@/lib/config"
+import type { SearchDoc } from "@/lib/search-data"
 import { Sidebar } from "./sidebar"
+import { SearchDialog } from "./search-dialog"
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -23,7 +25,7 @@ function GithubIcon({ className }: { className?: string }) {
 const iconButtonClass =
   "inline-flex items-center justify-center rounded-md text-sm font-medium h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors"
 
-export function Navbar() {
+export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -45,9 +47,7 @@ export function Navbar() {
           </Link>
         </div>
         <div className="flex items-center gap-1">
-          <button className={iconButtonClass} aria-label="搜索">
-            <Search className="h-4 w-4" />
-          </button>
+          {searchDocs && <SearchDialog docs={searchDocs} />}
           <ThemeToggle />
           <a
             href={siteConfig.links.github}
