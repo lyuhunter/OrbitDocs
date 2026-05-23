@@ -15,33 +15,39 @@ export function TableOfContents() {
   const pathname = usePathname()
 
   useEffect(() => {
-    const elements = Array.from(
-      document.querySelectorAll("h2, h3")
-    ).map((el) => ({
-      id: el.id || "",
-      text: (el as HTMLElement).innerText,
-      level: el.tagName === "H2" ? 2 : 3,
-    }))
-    setHeadings(elements)
-    setActiveId("")
+    let observer: IntersectionObserver | null = null
+    const raf = requestAnimationFrame(() => {
+      const elements = Array.from(
+        document.querySelectorAll("h2, h3")
+      ).map((el) => ({
+        id: el.id || "",
+        text: (el as HTMLElement).innerText,
+        level: el.tagName === "H2" ? 2 : 3,
+      }))
+      setHeadings(elements)
+      setActiveId("")
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id)
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              setActiveId(entry.target.id)
+            }
           }
-        }
-      },
-      { rootMargin: "-80px 0px -80% 0px" }
-    )
+        },
+        { rootMargin: "-80px 0px -80% 0px" }
+      )
 
-    for (const el of elements) {
-      const target = document.getElementById(el.id)
-      if (target) observer.observe(target)
+      for (const el of elements) {
+        const target = document.getElementById(el.id)
+        if (target) observer.observe(target)
+      }
+    })
+
+    return () => {
+      cancelAnimationFrame(raf)
+      observer?.disconnect()
     }
-
-    return () => observer.disconnect()
   }, [pathname])
 
   if (headings.length === 0) return null
@@ -49,9 +55,9 @@ export function TableOfContents() {
   return (
     <aside className="w-56 shrink-0 hidden xl:block">
       <div className="sticky top-20 pl-8 border-l">
-        <h4 className="text-sm font-semibold text-muted-foreground mb-3">
+        <div className="text-sm font-semibold text-muted-foreground mb-3">
           目录
-        </h4>
+        </div>
         <nav className="space-y-1">
           {headings.map((h) => (
             <a
