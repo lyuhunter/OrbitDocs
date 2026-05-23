@@ -18,7 +18,7 @@ export function TableOfContents() {
     let observer: IntersectionObserver | null = null
     const raf = requestAnimationFrame(() => {
       const elements = Array.from(
-        document.querySelectorAll("h2, h3")
+        document.querySelectorAll("main h2, main h3")
       ).map((el) => ({
         id: el.id || "",
         text: (el as HTMLElement).innerText,
