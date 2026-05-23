@@ -64,15 +64,16 @@
   ✓ 代码块强化 (data-title 文件名, data-language 显示标签, 复制按钮始终可见)
   ✓ 智能链接 (内部/外部链接一致样式)
   ✓ TOC 三路同步 (click/hashchange/IntersectionObserver)
+  ✓ GitHub Actions 自动部署 (EXPORT env 切换 standalone/export)
+  ✓ 静态导出模式 (output: "export" + generateStaticParams)
+  ✓ cleanup (移除 @mdx-js/mdx, remark-frontmatter; shadcn → devDependencies)
+  ✓ .dockerignore
+  ✓ Logo + favicon (light/dark SVG)
 
 待实现:
-  ☐ 静态导出模式测试 (output: "export")
   ☐ PWA / 离线支持
   ☐ 首页重定向美化
   ☐ 多语言 (i18n)
-  ☐ generateStaticParams 支持静态导出
-  ☐ .dockerignore (已创建)
-  ☐ 清理无用依赖 (已移除 @mdx-js/mdx, remark-frontmatter; shadcn → devDependencies)
 ```
 
 ## 开发命令
@@ -83,6 +84,7 @@ pnpm build     # 构建 (standalone 模式，适用于 Docker)
 pnpm start     # 生产环境启动
 pnpm lint      # ESLint
 pnpm typecheck # TypeScript 类型检查
+EXPORT=true REPO_NAME=OrbitDocs pnpm build  # 静态导出 (GitHub Pages)
 ```
 
 ## Docker 命令
@@ -137,7 +139,12 @@ app/
   docs/shell.tsx             ← DocsShell 客户端容器
   layout.tsx                 ← 根布局 (Navbar)
   page.tsx                   ← 首页 (重定向到 /docs)
+  not-found.tsx              ← 自定义 404
+  sitemap.ts                 ← 站点地图
   globals.css                ← Tailwind 4 + 语义化变量
+
+.github/workflows/
+  deploy.yml                 ← GitHub Pages 自动部署
 ```
 
 ### 书写规范
@@ -156,8 +163,10 @@ app/
 | 路由 | 内容 |
 |------|------|
 | `/` | 首页，重定向到 /docs |
-| `/docs` | `content/index.md` |
-| `/docs/[...slug]` | `content/{slug}.md` / `content/{slug}/index.md` |
+| `/docs` | 项目选择页（多项目时）|
+| `/docs/{projectId}` | `content/{projectId}/index.md` |
+| `/docs/{projectId}/[...slug]` | `content/{projectId}/{slug}.md` |
+| `/docs/[...slug]` | `content/{defaultProject}/{slug}.md`（向后兼容）|
 
 ### 导航树生成规则
 
@@ -191,5 +200,5 @@ MDX (lib/mdx.ts):
 
 搜索 (lib/search.ts):
   searchInDocs(query, docs) → SearchResult[]
-                        使用 flexsearch Document 索引
+                        使用 flexsearch Document 索引（已迁移至 cmdk）
 ```
