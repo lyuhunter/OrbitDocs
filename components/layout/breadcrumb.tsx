@@ -1,44 +1,63 @@
-import { ChevronRight } from "lucide-react"
-import Link from "next/link"
-import { getBreadcrumb } from "@/lib/navigation"
+"use client"
 
-export async function Breadcrumb({
-  slug,
+import {
+  Breadcrumb as BreadcrumbRoot,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import Link from "next/link"
+
+type BreadcrumbItemData = {
+  title: string
+  slug: string[]
+  hasContent: boolean
+}
+
+export function Breadcrumb({
+  items,
   projectId,
 }: {
-  slug: string[]
+  items: BreadcrumbItemData[]
   projectId?: string
 }) {
-  const items = getBreadcrumb(slug, projectId)
-
   if (items.length === 0) return null
 
+  const keyFor = (item: BreadcrumbItemData) =>
+    item.slug.length === 0 ? "root" : item.slug.join("/")
+
   return (
-    <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-6">
-      {items.map((item, i) => {
-        const isLast = i === items.length - 1
-        const href =
-          projectId && item.slug.length > 0
-            ? `/docs/${projectId}/${item.slug.join("/")}`
-            : projectId
-              ? `/docs/${projectId}`
-              : `/docs/${item.slug.join("/")}`
-        return (
-          <span key={i} className="flex items-center gap-1">
-            {i > 0 && <ChevronRight className="h-3 w-3" />}
-            {isLast ? (
-              <span className="text-foreground font-medium">{item.title}</span>
-            ) : (
-              <Link
-                href={href}
-                className="hover:text-foreground transition-colors"
-              >
-                {item.title}
-              </Link>
-            )}
-          </span>
-        )
-      })}
-    </nav>
+    <BreadcrumbRoot className="mb-6">
+      <BreadcrumbList>
+        {items.flatMap((item, i) => {
+          const isLast = i === items.length - 1
+          const href =
+            projectId && item.slug.length > 0
+              ? `/docs/${projectId}/${item.slug.join("/")}`
+              : projectId
+                ? `/docs/${projectId}`
+                : `/docs/${item.slug.join("/")}`
+
+          const linkOrPage = isLast || !item.hasContent ? (
+            <BreadcrumbPage>{item.title}</BreadcrumbPage>
+          ) : (
+            <BreadcrumbLink render={<Link href={href} />}>
+              {item.title}
+            </BreadcrumbLink>
+          )
+
+          return [
+            i > 0 ? (
+              <BreadcrumbSeparator key={`sep-${keyFor(item)}`} />
+            ) : null,
+            <BreadcrumbItem key={keyFor(item)}>
+              {linkOrPage}
+            </BreadcrumbItem>,
+          ].filter(Boolean)
+        })}
+      </BreadcrumbList>
+    </BreadcrumbRoot>
   )
 }

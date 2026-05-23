@@ -1,5 +1,4 @@
 import fs from "fs"
-import path from "path"
 import { compileMDX } from "next-mdx-remote/rsc"
 import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
@@ -7,6 +6,7 @@ import remarkGfm from "remark-gfm"
 import type { MDXRemoteProps } from "next-mdx-remote/rsc"
 import { useMDXComponents } from "@/components/mdx/mdx-components"
 import { getContentDir } from "./project.server"
+import { findContentFile } from "./content"
 
 export type MDXFrontmatter = {
   title: string
@@ -21,21 +21,6 @@ const prettyCodeOptions = {
     dark: "github-dark",
   },
   keepBackground: true,
-}
-
-function findContentFile(baseDir: string, slug: string[]): string | null {
-  const candidates = [
-    path.join(baseDir, ...slug) + ".md",
-    path.join(baseDir, ...slug) + ".mdx",
-    path.join(baseDir, ...slug, "index.md"),
-    path.join(baseDir, ...slug, "index.mdx"),
-  ]
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate
-  }
-
-  return null
 }
 
 export async function getMDXContent(

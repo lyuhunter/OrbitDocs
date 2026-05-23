@@ -2,9 +2,11 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { getMDXContent } from "@/lib/mdx"
-import { findPageBySlug, getPrevNext } from "@/lib/navigation"
+import { findPageBySlug, getBreadcrumb, getPrevNext } from "@/lib/navigation"
 import { siteConfig } from "@/lib/config.server"
 import { resolveProject } from "@/lib/project"
+import { getContentDir } from "@/lib/project.server"
+import { findContentFile } from "@/lib/content"
 import { Breadcrumb } from "@/components/layout/breadcrumb"
 import { Icon } from "@/lib/icon"
 
@@ -81,10 +83,15 @@ export default async function DocsPage({ params }: Props) {
   const { content } = result
   const page = findPageBySlug(pageSlug, projectId)
   const { prev, next } = getPrevNext(pageSlug, projectId)
+  const breadcrumbItems = getBreadcrumb(pageSlug, projectId).map((item) => {
+    const contentDir = getContentDir(projectId)
+    const hasContent = findContentFile(contentDir, item.slug) !== null
+    return { ...item, hasContent }
+  })
 
   return (
     <article className="min-h-screen">
-      <Breadcrumb slug={pageSlug} projectId={projectId} />
+      <Breadcrumb items={breadcrumbItems} projectId={projectId} />
       <div className="prose-custom">{content}</div>
       <div className="flex items-center justify-between mt-16 pt-8 border-t">
         {prev ? (
