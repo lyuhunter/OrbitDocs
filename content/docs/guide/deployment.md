@@ -67,6 +67,8 @@ services:
     volumes:
       # 运行时配置（必须）。容器内不含 config.toml
       - ./config.toml:/app/config.toml
+      # 文档源（推荐）。不挂载则使用构建时打包的内容
+      - ./content:/app/content
     environment:
       - NODE_ENV=production
     restart: unless-stopped
@@ -74,22 +76,25 @@ services:
 
 ### 生产模式挂载说明
 
-生产容器只需挂载 `config.toml`：
+| 挂载路径 | 用途 |
+|---------|------|
+| `./config.toml` | **必须**。容器内不含配置文件，不挂载会导致服务启动失败 |
+| `./content` | **推荐**。文档源目录。挂载后修改 Markdown 文件无需重建镜像；不挂载则使用构建时打包的内容 |
 
-- 文档内容、页面组件、静态资源已在构建时打包进镜像
-- `config.toml` 单独挂载，修改后重启容器即可更新站点配置
-- 同一镜像可通过挂载不同 `config.toml` 部署到不同环境（CI/CD 友好）
+容器内预置了构建时的 `content/` 副本，不挂载也能正常运行（展示的是构建时的文档版本）。挂载后可实时更新文档内容。
 
-## 配置热更新
+## 运行时热更新
 
-`config.toml` 通过 Docker volume 挂载到容器内，修改后重启容器即可生效：
+无需重建镜像即可更新：
 
-```bash
-# 修改 config.toml 后
-docker compose restart app
-```
+| 场景 | 操作 |
+|------|------|
+| 修改 `config.toml` 配置 | `docker compose restart app` |
+| 修改 `content/` 目录文档 | `docker compose restart app`（需挂载 `content` volume） |
 
-无需重新构建 Docker 镜像。也适用于 CI/CD 场景：同一镜像通过挂载不同 `config.toml` 部署到不同环境。
+`config.toml` 和 `content/` 均通过 Docker volume 挂载，修改后重启容器即可生效。
+
+也适用于 CI/CD 场景：同一镜像通过挂载不同 `config.toml` 部署到不同环境。
 
 ## .dockerignore
 
@@ -119,6 +124,7 @@ tsconfig.json
   - 编译后的服务端代码（`.next/standalone/`）
   - 静态资源（`.next/static/`）
   - `public/` 目录内容
+  - `content/` 文档源（构建时打包，运行时可通过 volume 覆盖）
 - `config.toml` 必须通过 volume 挂载，容器内不含配置文件
 
 ### 开发 Dockerfile
