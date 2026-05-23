@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { usePathname } from "next/navigation"
 
 type Heading = {
@@ -14,9 +14,18 @@ export function TableOfContents() {
   const [activeId, setActiveId] = useState<string>("")
   const pathname = usePathname()
 
+  const updateFromHash = useCallback(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1))
+    if (id) setActiveId(id)
+  }, [])
+
   useEffect(() => {
     let observer: IntersectionObserver | null = null
+    let mounted = true
+
     const raf = requestAnimationFrame(() => {
+      if (!mounted) return
+
       const elements = Array.from(
         document.querySelectorAll("main h2, main h3")
       ).map((el) => ({
@@ -25,13 +34,14 @@ export function TableOfContents() {
         level: el.tagName === "H2" ? 2 : 3,
       }))
       setHeadings(elements)
-      setActiveId("")
+      updateFromHash()
 
       observer = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
             if (entry.isIntersecting) {
               setActiveId(entry.target.id)
+              history.replaceState(null, "", `#${entry.target.id}`)
             }
           }
         },
@@ -42,13 +52,17 @@ export function TableOfContents() {
         const target = document.getElementById(el.id)
         if (target) observer.observe(target)
       }
+
+      window.addEventListener("hashchange", updateFromHash)
     })
 
     return () => {
+      mounted = false
       cancelAnimationFrame(raf)
       observer?.disconnect()
+      window.removeEventListener("hashchange", updateFromHash)
     }
-  }, [pathname])
+  }, [pathname, updateFromHash])
 
   if (headings.length === 0) return null
 
@@ -63,8 +77,9 @@ export function TableOfContents() {
             <a
               key={h.id}
               href={`#${h.id}`}
+              onClick={() => setActiveId(h.id)}
               data-active={h.id === activeId}
-              className="block text-sm text-muted-foreground border-l-2 border-transparent pl-3 hover:text-foreground transition-colors data-[active=true]:border-primary data-[active=true]:text-foreground data-[active=true]:font-medium"
+              className="block text-sm text-muted-foreground pl-3 hover:text-foreground transition-colors data-[active=true]:text-foreground data-[active=true]:font-medium data-[active=true]:border-l-2 data-[active=true]:border-primary"
               style={{ paddingLeft: h.level === 3 ? "24px" : "12px" }}
             >
               {h.text}
