@@ -77,22 +77,21 @@ export function Navbar({
               <>
                 <Image
                   src={logo.light}
-                  alt={siteConfig.name}
+                  alt={logo.text || siteConfig.name}
                   width={24}
                   height={24}
-                  className="block dark:hidden"
+                  className="block dark:hidden shrink-0"
                 />
                 <Image
                   src={logo.dark ?? logo.light}
-                  alt={siteConfig.name}
+                  alt={logo.text || siteConfig.name}
                   width={24}
                   height={24}
-                  className="hidden dark:block"
+                  className="hidden dark:block shrink-0"
                 />
               </>
-            ) : (
-              <span className="text-base hidden sm:inline">{logo.text}</span>
-            )}
+            ) : null}
+            <span className="text-base hidden sm:inline">{logo.text}</span>
           </Link>
 
           {onDocsPage && siteConfig.projects.length > 0 && (
