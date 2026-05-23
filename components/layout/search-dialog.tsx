@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Search } from "lucide-react"
 import {
@@ -11,15 +11,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { searchInDocs, type SearchResult } from "@/lib/search"
+import { siteConfig } from "@/lib/config"
 import type { SearchDoc } from "@/lib/search-data"
 
 export function SearchDialog({ docs }: { docs: SearchDoc[] }) {
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [results, setResults] = useState<SearchResult[]>([])
   const router = useRouter()
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -40,24 +37,22 @@ export function SearchDialog({ docs }: { docs: SearchDoc[] }) {
     return () => document.removeEventListener("keydown", onKeyDown)
   }, [])
 
-  const handleSearch = useCallback((value: string) => {
-    setQuery(value)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      if (value.trim()) {
-        setResults(searchInDocs(value.trim(), docs))
-      } else {
-        setResults([])
-      }
-    }, 150)
-  }, [docs])
-
-  function handleSelect(slug: string[]) {
+  function handleSelect(slug: string[], projectId?: string) {
     setOpen(false)
-    setQuery("")
-    setResults([])
-    router.push(`/docs/${slug.join("/")}`)
+    const base = projectId ?? "docs"
+    router.push(`/docs/${base}/${slug.join("/")}`)
   }
+
+  const grouped = new Map<string, SearchDoc[]>()
+  for (const doc of docs) {
+    const pid = doc.projectId ?? "docs"
+    if (!grouped.has(pid)) grouped.set(pid, [])
+    grouped.get(pid)!.push(doc)
+  }
+
+  const projectNames = Object.fromEntries(
+    siteConfig.projects.map((p) => [p.id, p.name]),
+  )
 
   return (
     <>
@@ -70,31 +65,28 @@ export function SearchDialog({ docs }: { docs: SearchDoc[] }) {
         <span className="ml-auto text-xs text-muted-foreground">⌘K</span>
       </button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput
-          placeholder="搜索文档..."
-          value={query}
-          onValueChange={handleSearch}
-        />
+        <CommandInput placeholder="搜索文档..." />
         <CommandList>
           <CommandEmpty>未找到结果</CommandEmpty>
-          {results.length > 0 && (
-            <CommandGroup heading="文档">
-              {results.map((result) => (
+          {Array.from(grouped.entries()).map(([pid, pDocs]) => (
+            <CommandGroup key={pid} heading={projectNames[pid] ?? pid}>
+              {pDocs.map((doc) => (
                 <CommandItem
-                  key={result.slug.join("/")}
-                  onSelect={() => handleSelect(result.slug)}
+                  key={doc.id}
+                  value={`${doc.title} ${doc.description}`}
+                  onSelect={() => handleSelect(doc.slug, doc.projectId)}
                   className="flex flex-col items-start gap-0.5"
                 >
-                  <span className="text-sm font-medium">{result.title}</span>
-                  {result.description && (
+                  <span className="text-sm font-medium">{doc.title}</span>
+                  {doc.description && (
                     <span className="text-xs text-muted-foreground line-clamp-1">
-                      {result.description}
+                      {doc.description}
                     </span>
                   )}
                 </CommandItem>
               ))}
             </CommandGroup>
-          )}
+          ))}
         </CommandList>
       </CommandDialog>
     </>

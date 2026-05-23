@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
+import { getContentDir } from "./project"
 
 export type NavPage = {
   type: "page"
@@ -29,8 +30,6 @@ export type FlatPage = {
   icon?: string
   description?: string
 }
-
-const contentDir = path.join(process.cwd(), "content")
 
 function readCategoryJson(dir: string): Partial<NavGroup> | null {
   const file = path.join(dir, "_category_.json")
@@ -92,12 +91,13 @@ function scanDir(dir: string, parentSlug: string[] = []): NavNode[] {
   return nodes
 }
 
-export function getNavigation(): NavNode[] {
-  if (!fs.existsSync(contentDir)) return []
-  return scanDir(contentDir)
+export function getNavigation(projectId?: string): NavNode[] {
+  const dir = projectId ? getContentDir(projectId) : getContentDir("docs")
+  if (!fs.existsSync(dir)) return []
+  return scanDir(dir)
 }
 
-export function getAllPages(): FlatPage[] {
+export function getAllPages(projectId?: string): FlatPage[] {
   const pages: FlatPage[] = []
 
   function walk(nodes: NavNode[]) {
@@ -116,21 +116,27 @@ export function getAllPages(): FlatPage[] {
     }
   }
 
-  walk(getNavigation())
+  walk(getNavigation(projectId))
   return pages
 }
 
-export function findPageBySlug(slug: string[]): FlatPage | undefined {
-  return getAllPages().find(
-    (p) => p.slug.join("/") === slug.join("/")
+export function findPageBySlug(
+  slug: string[],
+  projectId?: string,
+): FlatPage | undefined {
+  return getAllPages(projectId).find(
+    (p) => p.slug.join("/") === slug.join("/"),
   )
 }
 
-export function getPrevNext(slug: string[]): {
+export function getPrevNext(
+  slug: string[],
+  projectId?: string,
+): {
   prev: FlatPage | null
   next: FlatPage | null
 } {
-  const pages = getAllPages()
+  const pages = getAllPages(projectId)
   const index = pages.findIndex((p) => p.slug.join("/") === slug.join("/"))
   return {
     prev: index > 0 ? pages[index - 1] : null,
@@ -149,7 +155,11 @@ function findBreadcrumbPath(
         return [{ title: node.title, slug: node.slug }]
       }
     } else {
-      const result = findBreadcrumbPath(node.children, targetSlug, treeDepth + 1)
+      const result = findBreadcrumbPath(
+        node.children,
+        targetSlug,
+        treeDepth + 1,
+      )
       if (result) {
         const groupSlug = targetSlug.slice(0, treeDepth)
         return [{ title: node.title, slug: groupSlug }, ...result]
@@ -159,12 +169,15 @@ function findBreadcrumbPath(
   return null
 }
 
-export function getBreadcrumb(slug: string[]): { title: string; slug: string[] }[] {
+export function getBreadcrumb(
+  slug: string[],
+  projectId?: string,
+): { title: string; slug: string[] }[] {
   if (slug.length === 0) {
-    const page = findPageBySlug([])
+    const page = findPageBySlug([], projectId)
     return page ? [{ title: page.title, slug: [] }] : []
   }
 
-  const path = findBreadcrumbPath(getNavigation(), slug)
+  const path = findBreadcrumbPath(getNavigation(projectId), slug)
   return path ?? []
 }

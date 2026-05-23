@@ -6,6 +6,7 @@ import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
 import type { MDXRemoteProps } from "next-mdx-remote/rsc"
 import { useMDXComponents } from "@/components/mdx/mdx-components"
+import { getContentDir } from "./project"
 
 export type MDXFrontmatter = {
   title: string
@@ -13,8 +14,6 @@ export type MDXFrontmatter = {
   order?: number
   icon?: string
 }
-
-const contentDir = path.join(process.cwd(), "content")
 
 const prettyCodeOptions = {
   theme: {
@@ -24,10 +23,32 @@ const prettyCodeOptions = {
   keepBackground: true,
 }
 
+function findContentFile(baseDir: string, slug: string[]): string | null {
+  const candidates = [
+    path.join(baseDir, ...slug) + ".md",
+    path.join(baseDir, ...slug) + ".mdx",
+    path.join(baseDir, ...slug, "index.md"),
+    path.join(baseDir, ...slug, "index.mdx"),
+  ]
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate
+  }
+
+  return null
+}
+
 export async function getMDXContent(
-  slug: string[]
-): Promise<{ content: React.ReactElement; frontmatter: MDXFrontmatter } | null> {
-  const filePath = findContentFile(slug)
+  slug: string[],
+  projectId?: string,
+): Promise<{
+  content: React.ReactElement
+  frontmatter: MDXFrontmatter
+} | null> {
+  const baseDir = projectId
+    ? getContentDir(projectId)
+    : getContentDir("docs")
+  const filePath = findContentFile(baseDir, slug)
   if (!filePath) return null
 
   const source = fs.readFileSync(filePath, "utf-8")
@@ -38,29 +59,11 @@ export async function getMDXContent(
       parseFrontmatter: true,
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [
-          rehypeSlug,
-          [rehypePrettyCode, prettyCodeOptions],
-        ],
+        rehypePlugins: [rehypeSlug, [rehypePrettyCode, prettyCodeOptions]],
       },
     },
     components: useMDXComponents() as MDXRemoteProps["components"],
   })
 
   return { content, frontmatter }
-}
-
-function findContentFile(slug: string[]): string | null {
-  const candidates = [
-    path.join(contentDir, ...slug) + ".md",
-    path.join(contentDir, ...slug) + ".mdx",
-    path.join(contentDir, ...slug, "index.md"),
-    path.join(contentDir, ...slug, "index.mdx"),
-  ]
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate
-  }
-
-  return null
 }

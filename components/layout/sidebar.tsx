@@ -15,16 +15,18 @@ import type { NavNode } from "@/lib/navigation"
 export function Sidebar({
   nav,
   onNavClick,
+  projectId,
 }: {
   nav?: NavNode[]
   onNavClick?: () => void
+  projectId?: string
 }) {
   const pathname = usePathname()
 
   if (!nav) return null
 
   return (
-    <nav className="w-64 h-full overflow-y-auto py-4 px-2">
+    <nav className="w-64 h-full overflow-y-auto py-4 px-2" key={projectId}>
       <div className="space-y-1">
         {nav.map((node, i) => (
           <NavTreeNode
@@ -32,6 +34,7 @@ export function Sidebar({
             node={node}
             pathname={pathname}
             onNavClick={onNavClick}
+            projectId={projectId}
           />
         ))}
       </div>
@@ -44,14 +47,19 @@ function NavTreeNode({
   pathname,
   onNavClick,
   depth = 0,
+  projectId,
 }: {
   node: NavNode
   pathname: string
   onNavClick?: () => void
   depth?: number
+  projectId?: string
 }) {
   if (node.type === "page") {
-    const href = `/docs/${node.slug.join("/")}`
+    const projectPrefix = projectId ? `/docs/${projectId}` : "/docs"
+    const href = node.slug.length > 0
+      ? `${projectPrefix}/${node.slug.join("/")}`
+      : projectPrefix
     const active = pathname === href
 
     return (
@@ -101,6 +109,7 @@ function NavTreeNode({
               pathname={pathname}
               onNavClick={onNavClick}
               depth={depth + 1}
+              projectId={projectId}
             />
           ))}
         </div>

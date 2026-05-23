@@ -3,10 +3,20 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, Moon, Sun } from "lucide-react"
+import { useParams, usePathname, useRouter } from "next/navigation"
+import { Menu, Moon, Sun, ChevronDown } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { siteConfig } from "@/lib/config"
+import { resolveProject, getProject } from "@/lib/project"
 import type { SearchDoc } from "@/lib/search-data"
+import type { NavNode } from "@/lib/navigation"
+import { Icon } from "@/lib/icon"
 import { Sidebar } from "./sidebar"
 import { SearchDialog } from "./search-dialog"
 import { resolveTheme, applyTheme, setStoredTheme } from "@/lib/theme"
@@ -27,9 +37,26 @@ function GithubIcon({ className }: { className?: string }) {
 const iconButtonClass =
   "inline-flex items-center justify-center rounded-md text-sm font-medium h-8 w-8 hover:bg-accent hover:text-accent-foreground transition-colors"
 
-export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
+export function Navbar({
+  searchDocs,
+  navs,
+}: {
+  searchDocs?: SearchDoc[]
+  navs?: Record<string, NavNode[]>
+}) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const params = useParams()
+  const router = useRouter()
   const { logo } = siteConfig
+
+  const slug = (params.slug as string[]) ?? []
+  const { projectId } = resolveProject(slug)
+  const currentProject = getProject(projectId)
+
+  const currentNav = navs?.[projectId]
+
+  const onDocsPage = pathname.startsWith("/docs")
 
   return (
     <header className="sticky top-0 z-50 h-14 bg-background/80 backdrop-blur-sm border-b">
@@ -42,10 +69,11 @@ export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
               <Menu className="h-4 w-4" />
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
-              <Sidebar onNavClick={() => setOpen(false)} />
+              <Sidebar nav={currentNav} onNavClick={() => setOpen(false)} projectId={projectId} />
             </SheetContent>
           </Sheet>
-          <Link href="/docs" className="flex items-center gap-2 font-semibold">
+
+          <Link href="/docs" className="flex items-center gap-2 font-semibold shrink-0">
             {logo.light ? (
               <>
                 <Image
@@ -64,10 +92,44 @@ export function Navbar({ searchDocs }: { searchDocs?: SearchDoc[] }) {
                 />
               </>
             ) : (
-              <span className="text-lg font-semibold">{logo.text}</span>
+              <span className="text-base hidden sm:inline">{logo.text}</span>
             )}
           </Link>
+
+          {onDocsPage && siteConfig.projects.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ml-1 px-2 py-1 rounded-md hover:bg-accent">
+                {currentProject?.icon && (
+                  <Icon name={currentProject.icon} className="h-3.5 w-3.5" />
+                )}
+                <span>{currentProject?.name ?? "选择项目"}</span>
+                <ChevronDown className="h-3 w-3" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {siteConfig.projects.map((project) => (
+                  <DropdownMenuItem
+                    key={project.id}
+                    onClick={() => router.push(`/docs/${project.id}`)}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    {project.icon && (
+                      <Icon name={project.icon} className="h-4 w-4 text-muted-foreground shrink-0" />
+                    )}
+                    <div>
+                      <div className="text-sm font-medium">{project.name}</div>
+                      {project.description && (
+                        <div className="text-xs text-muted-foreground">
+                          {project.description}
+                        </div>
+                      )}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
+
         <div className="flex items-center gap-1">
           {searchDocs && <SearchDialog docs={searchDocs} />}
           <ThemeToggle />

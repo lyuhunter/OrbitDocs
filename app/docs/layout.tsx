@@ -1,6 +1,8 @@
 import type { ReactNode } from "react"
 import { getNavigation } from "@/lib/navigation"
-import { DocsSidebar } from "./sidebar"
+import { siteConfig } from "@/lib/config"
+import type { NavNode } from "@/lib/navigation"
+import { DocsShell } from "./shell"
 import { Footer } from "@/components/layout/footer"
 import { BackToTop } from "@/components/layout/back-to-top"
 
@@ -9,13 +11,14 @@ export default function DocsLayout({
 }: {
   children: ReactNode
 }) {
-  const nav = getNavigation()
+  const navs: Record<string, NavNode[]> = {}
+  for (const project of siteConfig.projects) {
+    navs[project.id] = getNavigation(project.id)
+  }
 
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden lg:block sticky top-14 self-start h-[calc(100vh-3.5rem)] border-r">
-        <DocsSidebar nav={nav} />
-      </aside>
+      <DocsShell navs={navs} />
       <div className="flex-1 min-w-0 flex flex-col">
         <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
           {children}
