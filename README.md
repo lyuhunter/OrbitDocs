@@ -2,6 +2,8 @@
 
 类 MkDocs 静态文档站点生成器，基于 Next.js 16 + shadcn/ui 构建。
 
+> 演示站点：[https://lyuhunter.github.io/OrbitDocs/](https://lyuhunter.github.io/OrbitDocs/)
+
 ## 技术栈
 
 | 技术 | 版本 | 用途 |
