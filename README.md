@@ -21,17 +21,19 @@
 
 ```bash
 pnpm dev       # 开发 (Turbopack HMR)
-pnpm build     # 生产构建 (standalone 模式)
-pnpm start     # 生产运行
+pnpm build     # 生产构建 (standalone 模式，适用于 Docker)
+pnpm start     # 生产环境启动
 pnpm lint      # ESLint
 pnpm typecheck # TypeScript 类型检查
+EXPORT=true REPO_NAME=OrbitDocs pnpm build  # 静态导出 (GitHub Pages)
 ```
 
 ## Docker
 
 ```bash
 docker compose up dev    # 开发模式 (热重载)
-docker compose up app    # 生产模式 (config.toml 挂载)
+docker compose up app    # 生产模式 (config.toml + content 挂载)
+docker compose restart app  # 修改配置/文档后重启生效
 ```
 
 ## 主要特性
@@ -75,6 +77,8 @@ docker compose up app    # 生产模式 (config.toml 挂载)
 │   ├── icon.tsx       # FontAwesome 图标组件
 │   ├── theme.tsx      # 主题持久化 (零闪烁)
 │   └── utils.ts       # cn() 工具函数
+├── .github/workflows/
+│   └── deploy.yml     # GitHub Pages 自动部署
 ├── config.toml        # 运行时站点配置
 ├── .dockerignore
 ├── Dockerfile
@@ -108,6 +112,19 @@ icon = "fa-book"
 每个项目的文档位于 `content/{projectId}/`，URL 为 `/docs/{projectId}/{slug}`。
 在 `config.toml` 中添加 `[[project]]` 条目即可注册新项目。
 
+## GitHub Pages 自动部署
+
+推送 `main` 分支自动构建并部署：
+
+```bash
+git push origin main
+# Actions 自动运行：build → deploy
+```
+
+在 GitHub 仓库 Settings → Pages 中将 Source 设为 **GitHub Actions** 即可启用。
+
+构建命令：`EXPORT=true REPO_NAME=OrbitDocs pnpm build`
+
 ## 项目状态
 
 - [x] 脚手架 (Next.js 16 + Tailwind 4 + shadcn/ui)
@@ -130,6 +147,7 @@ icon = "fa-book"
 - [x] 主题持久化
 - [x] 自定义 404 页面
 - [x] Sitemap 生成
+- [x] GitHub Actions 自动部署 (GitHub Pages)
 - [x] 服务端/客户端模块分离
 
 ## License
