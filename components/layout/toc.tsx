@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { usePathname } from "next/navigation"
 
 type Heading = {
@@ -12,11 +12,15 @@ type Heading = {
 export function TableOfContents() {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>("")
+  const activeRef = useRef("")
   const pathname = usePathname()
 
   const updateFromHash = useCallback(() => {
     const id = decodeURIComponent(window.location.hash.slice(1))
-    if (id) setActiveId(id)
+    if (id) {
+      activeRef.current = id
+      setActiveId(id)
+    }
   }, [])
 
   useEffect(() => {
@@ -39,7 +43,8 @@ export function TableOfContents() {
       observer = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && entry.target.id !== activeRef.current) {
+              activeRef.current = entry.target.id
               setActiveId(entry.target.id)
               history.replaceState(null, "", `#${entry.target.id}`)
             }
@@ -77,7 +82,7 @@ export function TableOfContents() {
             <a
               key={h.id || `h-${i}`}
               href={`#${h.id}`}
-              onClick={() => setActiveId(h.id)}
+              onClick={() => { activeRef.current = h.id; setActiveId(h.id) }}
               data-active={h.id === activeId}
               className="block text-sm text-muted-foreground pl-3 hover:text-foreground transition-colors data-[active=true]:text-foreground data-[active=true]:font-medium data-[active=true]:border-l-2 data-[active=true]:border-primary"
               style={{ paddingLeft: h.level === 3 ? "24px" : "12px" }}

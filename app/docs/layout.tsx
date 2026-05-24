@@ -21,7 +21,7 @@ export default function DocsLayout({
     <div className="flex min-h-screen">
       <DocsShell navs={navs} projects={siteConfig.projects} defaultProject={siteConfig.defaultProject} />
       <div className="flex-1 min-w-0 flex flex-col">
-        <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <main id="main-content" className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
           {children}
         </main>
         <Footer />
