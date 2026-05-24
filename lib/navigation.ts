@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import { cache } from "react"
 import matter from "gray-matter"
 import { getContentDir } from "./project.server"
 
@@ -92,11 +93,11 @@ function scanDir(dir: string, parentSlug: string[] = []): NavNode[] {
   return nodes
 }
 
-export function getNavigation(projectId?: string): NavNode[] {
+export const getNavigation = cache((projectId?: string): NavNode[] => {
   const dir = projectId ? getContentDir(projectId) : getContentDir("docs")
   if (!fs.existsSync(dir)) return []
   return scanDir(dir)
-}
+})
 
 export function getAllPages(projectId?: string): FlatPage[] {
   const pages: FlatPage[] = []
