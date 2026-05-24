@@ -1,25 +1,24 @@
 "use client"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  faBook,
-  faCode,
-  faPlug,
-  faGear,
-  faRocket,
-} from "@fortawesome/free-solid-svg-icons"
+import { fas } from "@fortawesome/free-solid-svg-icons"
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 
-const registry: Record<string, IconDefinition> = {
-  "fa-book": faBook,
-  "fa-code": faCode,
-  "fa-plug": faPlug,
-  "fa-gear": faGear,
-  "fa-rocket": faRocket,
+const cache = new Map<string, IconDefinition>()
+
+function resolveIcon(name: string): IconDefinition | undefined {
+  if (cache.has(name)) return cache.get(name)
+  const key = name
+    .replace(/^fa-/, "")
+    .replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+  const iconKey = `fa${key.charAt(0).toUpperCase() + key.slice(1)}` as keyof typeof fas
+  const def = fas[iconKey] as IconDefinition | undefined
+  if (def) cache.set(name, def)
+  return def
 }
 
 export function Icon({ name, className }: { name: string; className?: string }) {
-  const def = registry[name]
+  const def = resolveIcon(name)
   if (!def) return <span className={className}>{name}</span>
   return <FontAwesomeIcon icon={def} className={className} />
 }
