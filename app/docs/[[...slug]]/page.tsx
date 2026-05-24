@@ -1,3 +1,4 @@
+import fs from "fs"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
@@ -101,16 +102,33 @@ export default async function DocsPage({ params }: Props) {
 
   const { content } = result
   const { prev, next } = getPrevNext(pageSlug, projectId)
+  const contentDir = getContentDir(projectId)
   const breadcrumbItems = getBreadcrumb(pageSlug, projectId).map((item) => {
-    const contentDir = getContentDir(projectId)
     const hasContent = findContentFile(contentDir, item.slug) !== null
     return { ...item, hasContent }
   })
+  const filePath = findContentFile(contentDir, pageSlug)
+  const lastModified = filePath
+    ? new Date(fs.statSync(filePath).mtime).toLocaleDateString("zh-CN")
+    : null
+  const githubEditUrl = filePath
+    ? `${siteConfig.links.github}/blob/main/${filePath.replace(process.cwd() + "/", "")}`
+    : null
 
   return (
     <article className="min-h-screen">
       <Breadcrumb items={breadcrumbItems} projectId={projectId} />
       <div className="prose-custom">{content}</div>
+      {(lastModified || githubEditUrl) && (
+        <div className="flex items-center justify-between mt-12 text-xs text-muted-foreground">
+          {lastModified && <span>最后更新：{lastModified}</span>}
+          {githubEditUrl && (
+            <a href={githubEditUrl} target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+              编辑此页
+            </a>
+          )}
+        </div>
+      )}
       <div className="flex items-center justify-between mt-16 pt-8 border-t">
         {prev ? (
           <Link
