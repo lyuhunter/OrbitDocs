@@ -11,13 +11,13 @@ import { findContentFile } from "@/lib/content"
 import { Breadcrumb } from "@/components/layout/breadcrumb"
 import { Icon } from "@/lib/icon"
 
-export const revalidate = 0
-
 interface Props {
   params: Promise<{ slug?: string[] }>
 }
 
 export function generateStaticParams() {
+  if (process.env.EXPORT !== "true") return []
+
   const params: { slug?: string[] }[] = [{ slug: [] }]
 
   for (const project of siteConfig.projects) {
