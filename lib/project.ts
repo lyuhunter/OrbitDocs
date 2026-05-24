@@ -9,6 +9,4 @@ export function resolveProject(
   return { projectId: defaultProject, pageSlug: slug }
 }
 
-export function getProject<T extends { id: string }>(id: string, projects: T[]): T | undefined {
-  return projects.find((p) => p.id === id)
-}
+

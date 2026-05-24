@@ -96,7 +96,6 @@ export default async function DocsPage({ params }: Props) {
   }
 
   const { content } = result
-  const page = findPageBySlug(pageSlug, projectId)
   const { prev, next } = getPrevNext(pageSlug, projectId)
   const breadcrumbItems = getBreadcrumb(pageSlug, projectId).map((item) => {
     const contentDir = getContentDir(projectId)

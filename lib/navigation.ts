@@ -162,7 +162,7 @@ function findBreadcrumbPath(
         treeDepth + 1,
       )
       if (result) {
-        const groupSlug = targetSlug.slice(0, treeDepth)
+        const groupSlug = targetSlug.slice(0, treeDepth + 1)
         return [{ title: node.title, slug: groupSlug }, ...result]
       }
     }

@@ -1,7 +1,7 @@
 "use client"
 
 import { Copy, Check } from "lucide-react"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 
 const langLabels: Record<string, string> = {
   js: "JavaScript",
@@ -49,16 +49,23 @@ export function Pre({
 }: React.HTMLAttributes<HTMLPreElement>) {
   const [copied, setCopied] = useState(false)
   const preRef = useRef<HTMLPreElement>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const dataProps = props as Record<string, unknown>
   const title = dataProps["data-title"] as string | undefined
   const lang = dataProps["data-language"] as string | undefined
   const label = title ?? (lang ? langLabels[lang] ?? lang : "")
 
+  useEffect(() => {
+    if (copied) {
+      timeoutRef.current = setTimeout(() => setCopied(false), 1500)
+      return () => clearTimeout(timeoutRef.current)
+    }
+  }, [copied])
+
   function handleCopy() {
     const text = preRef.current?.textContent ?? ""
-    navigator.clipboard.writeText(text.replace(/\n$/, ""))
+    navigator.clipboard.writeText(text.replace(/\n$/, "")).catch(() => {})
     setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
   }
 
   return (

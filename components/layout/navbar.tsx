@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useParams, usePathname, useRouter } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 import { Menu, Moon, Sun } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { resolveProject } from "@/lib/project"
@@ -48,12 +48,10 @@ export function Navbar({
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const params = useParams()
-  const router = useRouter()
   const { logo } = siteConfig
 
   const slug = (params.slug as string[]) ?? []
   const { projectId } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
-  const currentProject = siteConfig.projects.find((p) => p.id === projectId)
 
   const currentNav = navs?.[projectId]
 
