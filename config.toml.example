@@ -1,0 +1,28 @@
+[site]
+name = "OrbitDocs"
+description = "类 MkDocs 静态文档站点生成器"
+url = "https://orbitdocs.dev"
+author = "lyuhunter"
+defaultProject = "docs"
+
+[logo]
+text = "OrbitDocs"
+# light = "/logo-light.svg"
+# dark = "/logo-dark.svg"
+
+[footer]
+copyright = "© {year} lyuhunter"
+poweredBy = true
+
+[[footer.link]]
+label = "GitHub"
+href = "https://github.com/lyuhunter/OrbitDocs"
+
+[links]
+github = "https://github.com/lyuhunter/OrbitDocs"
+
+[[project]]
+id = "docs"
+name = "OrbitDocs"
+icon = "fa-book"
+description = "项目文档中心"

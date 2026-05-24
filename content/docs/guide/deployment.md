@@ -6,6 +6,16 @@ description: 使用 Docker 部署 OrbitDocs
 
 # Docker 部署
 
+## 前置准备
+
+项目根目录需要 `config.toml` 配置文件。首次部署可复制示例文件：
+
+```bash
+cp config.toml.example config.toml
+```
+
+根据需要修改配置内容（项目列表、Logo、链接等）。
+
 ## 生产模式
 
 从 Docker Hub 拉取预构建镜像：
@@ -77,7 +87,9 @@ docker-compose.yml
 tsconfig.json
 ```
 
-注意：`content/` 在 `.dockerignore` 中，构建时仅预置少量 SSG 页面所需的文档。实际文档通过 volume 挂载提供。
+`config.toml` 不在 `.dockerignore` 中，但**容器内不含该文件**，必须通过 volume 挂载。
+
+`content/` 在 `.dockerignore` 中，构建时仅预置少量 SSG 页面所需的文档。实际文档通过 volume 挂载提供。
 
 ## Dockerfile 说明
 
