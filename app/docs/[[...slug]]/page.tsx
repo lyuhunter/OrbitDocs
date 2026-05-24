@@ -34,9 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { projectId, pageSlug } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
   const page = findPageBySlug(pageSlug, projectId)
   const project = siteConfig.projects.find((p) => p.id === projectId)
+  const canonical = slug.length > 0
+    ? `${siteConfig.url}/docs/${slug.join("/")}`
+    : `${siteConfig.url}/docs`
   return {
     title: page?.title ?? project?.name ?? "Not Found",
     description: page?.description ?? siteConfig.description,
+    alternates: { canonical },
   }
 }
 
