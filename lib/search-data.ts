@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { getAllPages } from "./navigation"
 import { siteConfig } from "./config.server"
 
@@ -9,7 +10,7 @@ export type SearchDoc = {
   projectId?: string
 }
 
-export function getSearchData(): SearchDoc[] {
+export const getSearchData = cache((): SearchDoc[] => {
   const docs: SearchDoc[] = []
 
   for (const project of siteConfig.projects) {
@@ -26,4 +27,4 @@ export function getSearchData(): SearchDoc[] {
   }
 
   return docs
-}
+})
