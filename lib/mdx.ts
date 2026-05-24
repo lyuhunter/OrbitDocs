@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm"
 import type { MDXRemoteProps } from "next-mdx-remote/rsc"
 import { visit } from "unist-util-visit"
 import type { Element } from "hast"
-import { useMDXComponents } from "@/components/mdx/mdx-components"
+import { getMDXComponents } from "@/components/mdx/mdx-components"
 import { getContentDir } from "./project.server"
 import { findContentFile } from "./content"
 
@@ -64,7 +64,7 @@ export async function getMDXContent(
         rehypePlugins: [rehypeSlug, [rehypePrettyCode, prettyCodeOptions], rehypeBasePathImages],
       },
     },
-    components: useMDXComponents() as MDXRemoteProps["components"],
+    components: getMDXComponents() as MDXRemoteProps["components"],
   })
 
   return { content, frontmatter }

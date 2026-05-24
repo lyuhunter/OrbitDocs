@@ -7,5 +7,6 @@ export function Img(props: React.ImgHTMLAttributes<HTMLImageElement>) {
   const resolvedSrc = typeof src === "string" && src.startsWith("/") && !src.startsWith(basePath)
     ? `${basePath}${src}`
     : src
+  // eslint-disable-next-line @next/next/no-img-element
   return <img src={resolvedSrc} alt={alt ?? ""} {...rest} />
 }

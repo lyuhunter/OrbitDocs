@@ -49,6 +49,8 @@ description = "REST API 接口文档"
 
 `{year}` 占位符在加载时自动替换为 `new Date().getFullYear()`，无需每年手动更新版权信息。
 
+Logo 图片未配置时（移除 `light`/`dark` 字段），导航栏自动显示 **Lucide FileText 图标**作为兜底，无需额外配置。
+
 配置文件缺失时（如 CI/CD 环境），系统自动使用内建默认值，保证构建不中断。
 
 ## 主题色

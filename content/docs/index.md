@@ -67,8 +67,8 @@ content/          ← 文档源，按项目组织
   api/            ← "api" 项目（多项目示例）
 
 public/
-  logo-light.svg  ← 亮色 Logo
-  logo-dark.svg   ← 暗色 Logo
+  logo-light.svg  ← 亮色 Logo（可选，未配置时自动显示图标）
+  logo-dark.svg   ← 暗色 Logo（可选）
   favicon.svg     ← 网站图标
   img/            ← 文档图片资源
 

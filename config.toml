@@ -7,8 +7,6 @@ defaultProject = "docs"
 
 [logo]
 text = "OrbitDocs"
-light = "/logo-light.svg"
-dark = "/logo-dark.svg"
 
 [footer]
 copyright = "© {year} lyuhunter"

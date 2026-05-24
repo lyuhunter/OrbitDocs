@@ -73,9 +73,9 @@ export function TableOfContents() {
           目录
         </div>
         <nav className="space-y-1">
-          {headings.map((h) => (
+          {headings.map((h, i) => (
             <a
-              key={h.id}
+              key={h.id || `h-${i}`}
               href={`#${h.id}`}
               onClick={() => setActiveId(h.id)}
               data-active={h.id === activeId}

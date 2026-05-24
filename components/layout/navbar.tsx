@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useParams, usePathname } from "next/navigation"
-import { Menu, Moon, Sun } from "lucide-react"
+import { FileText, Menu, Moon, Sun } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { resolveProject } from "@/lib/project"
 import { cn } from "@/lib/utils"
@@ -90,8 +90,10 @@ export function Navbar({
                   className="hidden dark:block shrink-0"
                 />
               </>
-            ) : null}
-            <span className="text-base hidden sm:inline">{logo.text}</span>
+            ) : (
+              <FileText className="h-5 w-5 shrink-0" />
+            )}
+            <span className="text-base">{logo.text}</span>
           </Link>
 
           {onDocsPage && siteConfig.projects.length > 0 && (
@@ -139,11 +141,7 @@ export function Navbar({
 }
 
 function ThemeToggle() {
-  const [dark, setDark] = useState(false)
-
-  useEffect(() => {
-    setDark(resolveTheme() === "dark")
-  }, [])
+  const [dark, setDark] = useState(() => resolveTheme() === "dark")
 
   function toggle() {
     const next = !dark
