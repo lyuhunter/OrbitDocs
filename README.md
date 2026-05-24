@@ -33,10 +33,17 @@ EXPORT=true REPO_NAME=OrbitDocs pnpm build  # 静态导出 (GitHub Pages)
 ## Docker
 
 ```bash
-docker compose up dev    # 开发模式 (热重载)
-docker compose up app    # 生产模式 (config.toml + content 挂载)
-docker compose restart app  # 修改配置/文档后重启生效
+# 从 Docker Hub 拉取
+docker pull hunterlyu/orbitdocs:latest
+
+# 启动生产服务
+docker compose up -d
+
+# 修改配置后重启
+docker compose restart app
 ```
+
+镜像地址：`docker.io/hunterlyu/orbitdocs:latest`
 
 ## 主要特性
 

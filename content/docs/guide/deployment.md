@@ -6,93 +6,56 @@ description: 使用 Docker 部署 OrbitDocs
 
 # Docker 部署
 
-## 开发模式
-
-```bash
-docker compose up dev
-```
-
-访问 http://localhost:3000。支持热重载，源码修改即时生效。
-
-```yaml title="docker-compose.yml"
-services:
-  dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    volumes:
-      # 运行时配置（容器内不含 config.toml，必须挂载）
-      - ./config.toml:/app/config.toml
-      # 开发热重载：覆盖镜像内的源码目录
-      - ./content:/app/content           # 文档源
-      - ./components:/app/components     # 布局/MDX 组件
-      - ./lib:/app/lib                   # 核心逻辑
-      - ./app:/app/app                   # 页面路由
-      - ./public:/app/public             # 静态资源
-      # 注意：node_modules 不挂载，使用镜像内的安装结果
-    environment:
-      - NODE_ENV=development
-    command: pnpm dev
-```
-
-### 开发模式挂载说明
-
-| 挂载路径 | 用途 |
-|---------|------|
-| `./config.toml` | **必须**。容器内不含配置文件，挂载后修改即刻生效 |
-| `./content` | 文档源目录，修改 Markdown 文件后 HMR 自动刷新 |
-| `./components` | 布局和 MDX 组件，修改后 HMR 即时生效 |
-| `./lib` | 核心逻辑（导航/MDX/配置），运行时修改无需重启 |
-| `./app` | 页面路由，修改后 HMR 自动刷新 |
-| `./public` | 静态资源（图片/图标），开发时直接访问 |
-
-`node_modules` 不挂载 — 使用镜像内安装结果，避免宿主环境与容器环境不一致。
-
 ## 生产模式
 
+从 Docker Hub 拉取预构建镜像：
+
 ```bash
-docker compose up app
+docker pull hunterlyu/orbitdocs:latest
+```
+
+镜像地址：`docker.io/hunterlyu/orbitdocs:latest`
+
+启动容器：
+
+```bash
+docker compose up -d
 ```
 
 ```yaml
 services:
   app:
+    image: orbitdocs:latest
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      # 运行时配置（必须）。容器内不含 config.toml
       - ./config.toml:/app/config.toml
-      # 文档源（推荐）。不挂载则使用构建时打包的内容
       - ./content:/app/content
     environment:
       - NODE_ENV=production
     restart: unless-stopped
 ```
 
-### 生产模式挂载说明
+### 挂载说明
 
 | 挂载路径 | 用途 |
 |---------|------|
 | `./config.toml` | **必须**。容器内不含配置文件，不挂载会导致服务启动失败 |
-| `./content` | **推荐**。文档源目录。挂载后修改 Markdown 文件无需重建镜像；不挂载则使用构建时打包的内容 |
+| `./content` | **推荐**。文档源目录。挂载后修改 Markdown 文件无需重启容器 |
 
-容器内预置了构建时的 `content/` 副本，不挂载也能正常运行（展示的是构建时的文档版本）。挂载后可实时更新文档内容。
+容器内预置了构建时的 `content/` 副本，不挂载也能正常运行（展示的是构建时的文档版本）。
 
 ## 运行时热更新
 
-无需重建镜像即可更新：
-
 | 场景 | 操作 |
 |------|------|
+| 修改 `content/` 目录文档 | **无需重启**，刷新浏览器即可（`revalidate = 0` 每次请求重新编译） |
 | 修改 `config.toml` 配置 | `docker compose restart app` |
-| 修改 `content/` 目录文档 | `docker compose restart app`（需挂载 `content` volume） |
 
-`config.toml` 和 `content/` 均通过 Docker volume 挂载，修改后重启容器即可生效。
+`config.toml` 和 `content/` 均通过 Docker volume 挂载。文档修改即时生效，配置修改需重启容器。
 
 也适用于 CI/CD 场景：同一镜像通过挂载不同 `config.toml` 部署到不同环境。
 
@@ -105,8 +68,8 @@ services:
 .gitignore
 node_modules
 .next
+content
 Dockerfile
-Dockerfile.dev
 docker-compose.yml
 *.md
 .eslintrc*
@@ -114,9 +77,9 @@ docker-compose.yml
 tsconfig.json
 ```
 
-## Dockerfile 说明
+注意：`content/` 在 `.dockerignore` 中，构建时仅预置少量 SSG 页面所需的文档。实际文档通过 volume 挂载提供。
 
-### 生产 Dockerfile
+## Dockerfile 说明
 
 - 使用 `output: "standalone"` 模式，产物仅包含运行时必需文件
 - 多阶段构建，最终镜像轻量
@@ -124,15 +87,35 @@ tsconfig.json
   - 编译后的服务端代码（`.next/standalone/`）
   - 静态资源（`.next/static/`）
   - `public/` 目录内容
-  - `content/` 文档源（构建时打包，运行时可通过 volume 覆盖）
+  - `content/` 文档源（构建时仅含 SSG 必需的少量文件，运行时通过 volume 覆盖）
 - `config.toml` 必须通过 volume 挂载，容器内不含配置文件
+- `HEALTHCHECK` 定期检测 `/docs` 响应
 
-### 开发 Dockerfile
+### 构建加速
 
-- 镜像内预装依赖后，源码目录通过 volume 覆盖实现热重载
-- `config.toml` 和文档目录单独挂载，修改后无需重启
-- Turbopack HMR 正常工作
-- `node_modules` 保留在镜像内，不挂载宿主目录
+Dockerfile 利用 pnpm store 缓存层，二次构建时无需重新下载依赖：
+
+```dockerfile
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    corepack enable && pnpm install --frozen-lockfile
+```
+
+### 多平台构建
+
+使用项目提供的 `docker-build.sh` 脚本：
+
+```bash
+# 构建当前平台
+./docker-build.sh
+
+# 构建并推送到 Docker Hub（多平台：linux/amd64 + linux/arm64）
+./docker-build.sh --push
+
+# 指定平台
+./docker-build.sh --platform linux/amd64 --tag hunterlyu/orbitdocs:latest
+```
+
+脚本会自动读取 `package.json` 版本号作为镜像标签（如 `orbitdocs:0.1.0`），同时打 `latest` 标签。
 
 ## GitHub Pages 自动部署
 
@@ -153,9 +136,6 @@ on:
 5. `EXPORT=true pnpm build` 以静态导出模式构建（输出到 `out/` 目录）
 6. `actions/upload-pages-artifact` 上传构建产物
 7. `actions/deploy-pages` 部署到 GitHub Pages
-3. `EXPORT=true pnpm build` 以静态导出模式构建（输出到 `out/` 目录）
-4. `actions/upload-pages-artifact` 上传构建产物
-5. `actions/deploy-pages` 部署到 GitHub Pages
 
 ### 启用步骤
 

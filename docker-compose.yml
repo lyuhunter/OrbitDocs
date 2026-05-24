@@ -1,5 +1,6 @@
 services:
   app:
+    image: orbitdocs:latest
     build:
       context: .
       dockerfile: Dockerfile
