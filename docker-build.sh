@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 VERSION=$(node -p "require('./package.json').version")
-IMAGE="orbitdocs:${VERSION}"
+IMAGE="hunterlyu/orbitdocs:${VERSION}"
 
 PLATFORM="${DOCKER_PLATFORM:-linux/amd64,linux/arm64}"
 PUSH=false
@@ -23,15 +23,16 @@ if $PUSH; then
   docker buildx build \
     --platform "${PLATFORM}" \
     --tag "${IMAGE}" \
-    --tag "orbitdocs:latest" \
+    --tag "hunterlyu/orbitdocs:latest" \
     --push \
     .
+
 else
   echo "→ Building for current platform as ${IMAGE} ..."
   docker buildx build \
     --load \
     --tag "${IMAGE}" \
-    --tag "orbitdocs:latest" \
+    --tag "hunterlyu/orbitdocs:latest" \
     .
 fi
 

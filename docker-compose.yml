@@ -1,6 +1,6 @@
 services:
   app:
-    image: orbitdocs:latest
+    image: hunterlyu/orbitdocs:latest
     build:
       context: .
       dockerfile: Dockerfile
