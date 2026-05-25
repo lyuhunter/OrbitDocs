@@ -1,6 +1,7 @@
 export type ProjectConfig = {
   id: string
   name: string
+  order?: number
   icon?: string
   description?: string
 }

@@ -97,7 +97,7 @@ docker compose restart app
 
 ## TOML 运行时配置
 
-所有站点配置在 `config.toml` 中管理，通过 Docker volume 挂载，修改后重启容器即可生效：
+站点基础配置在 `config.toml` 中管理，通过 Docker volume 挂载，修改后重启容器即可生效：
 
 ```toml
 [site]
@@ -109,17 +109,22 @@ defaultProject = "docs"
 text = "OrbitDocs"
 light = "/logo-light.svg"
 dark = "/logo-dark.svg"
-
-[[project]]
-id = "docs"
-name = "OrbitDocs"
-icon = "fa-book"
 ```
+项目的 name、order、icon 通过 `content/{projectId}/_project_.json` 配置。
 
 ## 多项目
 
-每个项目的文档位于 `content/{projectId}/`，URL 为 `/docs/{projectId}/{slug}`。
-在 `config.toml` 中添加 `[[project]]` 条目即可注册新项目。
+`content/` 下每个一级目录自动注册为一个项目。URL 为 `/docs/{projectId}/{slug}`。
+
+在项目根目录创建 `_project_.json` 配置显示名和排序：
+
+```json
+{
+  "name": "API Reference",
+  "order": 2,
+  "icon": "fa-code"
+}
+```
 
 ## GitHub Pages 自动部署
 
