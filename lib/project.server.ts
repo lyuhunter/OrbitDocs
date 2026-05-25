@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
 import process from "process"
+import { cache } from "react"
 import type { ProjectConfig } from "./config"
 
 export function getContentDir(projectId: string): string {
@@ -21,7 +22,7 @@ function capitalize(name: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1)
 }
 
-export function getContentProjects(): ProjectConfig[] {
+export const getContentProjects = cache((): ProjectConfig[] => {
   const contentDir = path.join(process.cwd(), "content")
   if (!fs.existsSync(contentDir)) return []
 
@@ -61,4 +62,4 @@ export function getContentProjects(): ProjectConfig[] {
   })
 
   return projects
-}
+})

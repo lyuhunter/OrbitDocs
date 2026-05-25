@@ -1,7 +1,8 @@
-import { siteConfig } from "@/lib/config.server"
+import { getSiteConfig } from "@/lib/config.server"
 
 export function Footer() {
-  const { footer } = siteConfig
+  const cfg = getSiteConfig()
+  const { footer } = cfg
 
   return (
     <footer className="border-t py-8 mt-16">
@@ -21,7 +22,7 @@ export function Footer() {
           ))}
           {footer.poweredBy && (
             <span>
-              Powered by <span className="font-medium">{siteConfig.name}</span>
+              Powered by <span className="font-medium">{cfg.name}</span>
             </span>
           )}
         </div>

@@ -4,7 +4,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { getMDXContent } from "@/lib/mdx"
 import { findPageBySlug, getAllPages, getBreadcrumb, getPrevNext } from "@/lib/navigation"
-import { siteConfig } from "@/lib/config.server"
+import { getSiteConfig } from "@/lib/config.server"
 import { resolveProject } from "@/lib/project"
 import { getContentDir } from "@/lib/project.server"
 import { findContentFile } from "@/lib/content"
@@ -13,14 +13,16 @@ import { Icon } from "@/lib/icon"
 
 interface Props {
   params: Promise<{ slug?: string[] }>
+  searchParams?: Promise<Record<string, string>>
 }
 
 export function generateStaticParams() {
   if (process.env.EXPORT !== "true") return []
 
+  const cfg = getSiteConfig()
   const params: { slug?: string[] }[] = [{ slug: [] }]
 
-  for (const project of siteConfig.projects) {
+  for (const project of cfg.projects) {
     params.push({ slug: [project.id] })
     const pages = getAllPages(project.id)
     for (const page of pages) {
@@ -33,30 +35,32 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug = [] } = await params
-  const { projectId, pageSlug } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
+  const slug = (await params).slug ?? []
+  const cfg = getSiteConfig()
+  const { projectId, pageSlug } = resolveProject(slug, cfg.projects, cfg.defaultProject)
   const page = findPageBySlug(pageSlug, projectId)
-  const project = siteConfig.projects.find((p) => p.id === projectId)
+  const project = cfg.projects.find((p) => p.id === projectId)
   const canonical = slug.length > 0
-    ? `${siteConfig.url}/docs/${slug.join("/")}`
-    : `${siteConfig.url}/docs`
+    ? `${cfg.url}/docs/${slug.join("/")}`
+    : `${cfg.url}/docs`
   return {
     title: page?.title ?? project?.name ?? "Not Found",
-    description: page?.description ?? siteConfig.description,
+    description: page?.description ?? cfg.description,
     alternates: { canonical },
   }
 }
 
 function ProjectLanding() {
-  const projects = siteConfig.projects
+  const cfg = getSiteConfig()
+  const projects = cfg.projects
 
   return (
     <div className="min-h-screen">
       <h1 className="scroll-m-20 text-4xl font-bold tracking-tight mb-2">
-        {siteConfig.name}
+        {cfg.name}
       </h1>
       <p className="text-lg text-muted-foreground mb-12">
-        {siteConfig.description}
+        {cfg.description}
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
         {projects.map((project) => (
@@ -86,11 +90,13 @@ function ProjectLanding() {
   )
 }
 
-export default async function DocsPage({ params }: Props) {
-  const { slug = [] } = await params
-  const { projectId, pageSlug } = resolveProject(slug, siteConfig.projects, siteConfig.defaultProject)
+export default async function DocsPage({ params, searchParams }: Props) {
+  void searchParams
+  const slug = (await params).slug ?? []
+  const cfg = getSiteConfig()
+  const { projectId, pageSlug } = resolveProject(slug, cfg.projects, cfg.defaultProject)
 
-  const isLanding = slug.length === 0 && siteConfig.projects.length > 1
+  const isLanding = slug.length === 0 && cfg.projects.length > 1
 
   if (isLanding) {
     return <ProjectLanding />
@@ -114,7 +120,7 @@ export default async function DocsPage({ params }: Props) {
     ? new Date(fs.statSync(filePath).mtime).toLocaleDateString("zh-CN")
     : null
   const githubEditUrl = filePath
-    ? `${siteConfig.links.github}/blob/main/${filePath.replace(process.cwd() + "/", "")}`
+    ? `${cfg.links.github}/blob/main/${filePath.replace(process.cwd() + "/", "")}`
     : null
 
   return (

@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
 import process from "process"
+import { cache } from "react"
 import toml from "toml"
 import type { SiteConfig } from "./config"
 import { getContentProjects } from "./project.server"
@@ -63,7 +64,7 @@ function parseAndMerge(raw: string): Pick<SiteConfig, "name" | "description" | "
   }
 }
 
-export const siteConfig: SiteConfig = (() => {
+function buildSiteConfig(): SiteConfig {
   const configPath = path.join(process.cwd(), "config.toml")
 
   let defaultProject = ""
@@ -95,4 +96,6 @@ export const siteConfig: SiteConfig = (() => {
     footer: partial?.footer ?? footerDefaults,
     links: partial?.links ?? linksDefaults,
   }
-})()
+}
+
+export const getSiteConfig = cache(buildSiteConfig)
