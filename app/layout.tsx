@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import { headers } from "next/headers"
 import { Navbar } from "@/components/layout/navbar"
 import { getSiteConfig } from "@/lib/config.server"
 import { getSearchData } from "@/lib/search-data"
 import { getNavigation } from "@/lib/navigation"
 import { ThemeScript } from "@/lib/theme"
+import { isExport } from "@/lib/build-mode"
 
 const basePath = process.env.EXPORT === "true" && process.env.REPO_NAME
   ? `/${process.env.REPO_NAME}`
@@ -45,6 +47,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  if (!isExport) { headers() }
   const cfg = getSiteConfig()
   const searchDocs = getSearchData()
 
