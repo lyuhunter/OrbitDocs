@@ -36,7 +36,7 @@ EXPORT=true REPO_NAME=OrbitDocs pnpm build  # 静态导出 (GitHub Pages)
 # 从 Docker Hub 拉取
 docker pull hunterlyu/orbitdocs:latest
 
-# 启动生产服务
+# 启动生产服务（需先准备 config.toml 和 content/）
 docker compose up -d
 
 # 修改配置后重启
@@ -44,6 +44,21 @@ docker compose restart app
 ```
 
 镜像地址：`docker.io/hunterlyu/orbitdocs:latest`
+
+### 挂载说明
+
+容器依赖两个外部挂载：
+
+| 挂载路径 | 必需 | 说明 |
+|---------|------|------|
+| `./config.toml` | **是** | 站点配置，容器内不含此文件 |
+| `./content` | 推荐 | 文档源目录，挂载后修改文档无需重建镜像 |
+
+首次部署请先创建 `config.toml`：
+
+```bash
+cp config.toml.example config.toml
+```
 
 ## 主要特性
 
