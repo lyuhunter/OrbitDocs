@@ -1,6 +1,6 @@
 # OrbitDocs
 
-类 MkDocs 静态文档站点生成器，基于 Next.js 16 + shadcn/ui 构建。
+基于 Next.js 16 的现代化文档站点框架，文件系统驱动，多项目支持。
 
 > 演示站点：[https://lyuhunter.github.io/OrbitDocs/](https://lyuhunter.github.io/OrbitDocs/)
 
@@ -102,7 +102,7 @@ docker compose restart app
 ```toml
 [site]
 name = "OrbitDocs"
-description = "类 MkDocs 静态文档站点生成器"
+description = "基于 Next.js 16 的现代化文档站点框架"
 defaultProject = "docs"
 
 [logo]

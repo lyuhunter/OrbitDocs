@@ -7,7 +7,7 @@ import { getContentProjects } from "./project.server"
 
 const siteDefaults = {
   name: "OrbitDocs",
-  description: "类 MkDocs 静态文档站点生成器",
+  description: "基于 Next.js 16 的现代化文档站点框架",
   url: "https://orbitdocs.dev",
   author: "lyuhunter",
 }

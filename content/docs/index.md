@@ -1,6 +1,6 @@
 ---
 title: OrbitDocs 文档
-description: OrbitDocs 是一个基于 Next.js 16 + shadcn/ui 构建的类 MkDocs 静态文档站点生成器
+description: OrbitDocs 是一个基于 Next.js 16 的现代化文档站点框架，文件系统驱动，多项目支持
 order: 0
 icon: fa-house
 ---
