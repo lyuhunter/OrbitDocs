@@ -102,16 +102,12 @@ content/
     └── reference/
 ```
 
-每个项目在 `config.toml` 中注册：
+每个项目自动注册，无需手动配置。可通过 `_project_.json` 自定义显示名和图标：
 
-```toml
-[[project]]
-id = "docs"
-name = "项目文档"
-icon = "fa-book"
-
-[[project]]
-id = "sdk"
-name = "SDK 文档"
-icon = "fa-code"
+```json title="content/sdk/_project_.json"
+{
+  "name": "SDK 文档",
+  "order": 3,
+  "icon": "fa-code"
+}
 ```

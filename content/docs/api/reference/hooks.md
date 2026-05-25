@@ -109,18 +109,18 @@ function findContentFile(baseDir: string, slug: string[]): string | null
 
 ### generateStaticParams
 
-在 `app/docs/[[...slug]]/page.tsx` 中导出，构建时预渲染所有页面：
+在 `app/docs/[[...slug]]/page.tsx` 中导出。**导出模式**下预渲染所有页面：
 
 ```typescript
 export function generateStaticParams() {
+  if (process.env.EXPORT !== "true") return []
   // 遍历所有项目的所有页面
   // 为每篇文档生成对应的静态 HTML
-  // 包含项目首页和项目选择页
   return params  // { slug?: string[] }[]
 }
 ```
 
-构建后路由从 `ƒ (Dynamic)` 变为 `● (SSG)`，首次访问无需等待。
+**Docker 模式**下返回空数组，所有页面动态渲染，文档修改即时生效。**GitHub Pages 导出**时生成全量静态 HTML。
 
 ## 导航树生成规则
 

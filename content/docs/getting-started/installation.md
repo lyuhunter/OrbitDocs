@@ -92,14 +92,9 @@ defaultProject = "docs"
 text = "OrbitDocs"
 light = "/logo-light.svg"
 dark = "/logo-dark.svg"
-
-[[project]]
-id = "docs"
-name = "OrbitDocs"
-icon = "fa-book"
 ```
 
-配置文件可通过 Docker volume 挂载，部署后修改即时生效。
+项目的 name、order、icon 等元数据通过 `content/{projectId}/_project_.json` 配置，详见[多项目](/docs/docs/guide/customization#添加新项目)。
 
 ## 生产构建
 
