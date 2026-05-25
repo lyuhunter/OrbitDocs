@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: `${basePath}/favicon.svg`,
+    icon: [
+      { url: `${basePath}/favicon.svg`, media: "(prefers-color-scheme: light)" },
+      { url: `${basePath}/favicon-dark.svg`, media: "(prefers-color-scheme: dark)" },
+    ],
   },
   openGraph: {
     title: siteConfig.name,
