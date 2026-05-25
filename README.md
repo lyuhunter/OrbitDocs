@@ -166,4 +166,4 @@ git push origin main
 
 ## License
 
-MIT
+[MIT](LICENSE) © 2026 lyuhunter
