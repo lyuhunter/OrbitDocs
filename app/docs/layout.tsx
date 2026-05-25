@@ -1,5 +1,4 @@
 import type { ReactNode } from "react"
-import { headers } from "next/headers"
 import { getNavigation } from "@/lib/navigation"
 import { getSiteConfig } from "@/lib/config.server"
 import type { NavNode } from "@/lib/navigation"
@@ -7,14 +6,12 @@ import { DocsShell } from "./shell"
 import { Footer } from "@/components/layout/footer"
 import { BackToTop } from "@/components/layout/back-to-top"
 import { TableOfContents } from "@/components/layout/toc"
-import { isExport } from "@/lib/build-mode"
 
 export default function DocsLayout({
   children,
 }: {
   children: ReactNode
 }) {
-  if (!isExport) { headers() }
   const cfg = getSiteConfig()
   const navs: Record<string, NavNode[]> = {}
   for (const project of cfg.projects) {

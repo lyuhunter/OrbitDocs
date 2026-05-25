@@ -16,23 +16,25 @@ interface Props {
   searchParams?: Promise<Record<string, string>>
 }
 
-export function generateStaticParams() {
-  if (process.env.EXPORT !== "true") return []
+const _isExport = process.env.EXPORT === "true"
 
-  const cfg = getSiteConfig()
-  const params: { slug?: string[] }[] = [{ slug: [] }]
+export const generateStaticParams = _isExport
+  ? function generateStaticParams() {
+      const cfg = getSiteConfig()
+      const params: { slug?: string[] }[] = [{ slug: [] }]
 
-  for (const project of cfg.projects) {
-    params.push({ slug: [project.id] })
-    const pages = getAllPages(project.id)
-    for (const page of pages) {
-      if (page.slug.length === 0) continue
-      params.push({ slug: [project.id, ...page.slug] })
+      for (const project of cfg.projects) {
+        params.push({ slug: [project.id] })
+        const pages = getAllPages(project.id)
+        for (const page of pages) {
+          if (page.slug.length === 0) continue
+          params.push({ slug: [project.id, ...page.slug] })
+        }
+      }
+
+      return params
     }
-  }
-
-  return params
-}
+  : undefined
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const rawSlug = (await params).slug ?? []
