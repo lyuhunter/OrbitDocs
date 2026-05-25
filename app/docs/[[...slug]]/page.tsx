@@ -35,7 +35,10 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = (await params).slug ?? []
+  const rawSlug = (await params).slug ?? []
+  const slug = rawSlug.map((s) => {
+    try { return decodeURIComponent(s) } catch { return s }
+  })
   const cfg = getSiteConfig()
   const { projectId, pageSlug } = resolveProject(slug, cfg.projects, cfg.defaultProject)
   const page = findPageBySlug(pageSlug, projectId)
@@ -92,7 +95,10 @@ function ProjectLanding() {
 
 export default async function DocsPage({ params, searchParams }: Props) {
   void searchParams
-  const slug = (await params).slug ?? []
+  const rawSlug = (await params).slug ?? []
+  const slug = rawSlug.map((s) => {
+    try { return decodeURIComponent(s) } catch { return s }
+  })
   const cfg = getSiteConfig()
   const { projectId, pageSlug } = resolveProject(slug, cfg.projects, cfg.defaultProject)
 
