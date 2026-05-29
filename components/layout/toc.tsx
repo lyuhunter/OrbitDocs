@@ -9,11 +9,24 @@ type Heading = {
   level: number
 }
 
+function extractHeadings(): Heading[] {
+  return Array.from(document.querySelectorAll("main h2, main h3")).map(
+    (el) => ({
+      id: el.id || "",
+      text: (el as HTMLElement).innerText,
+      level: el.tagName === "H2" ? 2 : 3,
+    }),
+  )
+}
+
 export function TableOfContents() {
   const [headings, setHeadings] = useState<Heading[]>([])
   const [activeId, setActiveId] = useState<string>("")
   const activeRef = useRef("")
   const pathname = usePathname()
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const mutationRef = useRef<MutationObserver | null>(null)
+  const moTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const updateFromHash = useCallback(() => {
     const id = decodeURIComponent(window.location.hash.slice(1))
@@ -24,47 +37,69 @@ export function TableOfContents() {
   }, [])
 
   useEffect(() => {
-    let observer: IntersectionObserver | null = null
     let mounted = true
 
-    const raf = requestAnimationFrame(() => {
-      if (!mounted) return
+    const setupIntersectionObserver = (els: Heading[]) => {
+      observerRef.current?.disconnect()
+      if (els.length === 0) return
 
-      const elements = Array.from(
-        document.querySelectorAll("main h2, main h3")
-      ).map((el) => ({
-        id: el.id || "",
-        text: (el as HTMLElement).innerText,
-        level: el.tagName === "H2" ? 2 : 3,
-      }))
-      setHeadings(elements)
-      updateFromHash()
-
-      observer = new IntersectionObserver(
+      observerRef.current = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.isIntersecting && entry.target.id !== activeRef.current) {
+            if (
+              entry.isIntersecting &&
+              entry.target.id !== activeRef.current
+            ) {
               activeRef.current = entry.target.id
               setActiveId(entry.target.id)
               history.replaceState(null, "", `#${entry.target.id}`)
             }
           }
         },
-        { rootMargin: "-80px 0px -80% 0px" }
+        { rootMargin: "-80px 0px -80% 0px" },
       )
 
-      for (const el of elements) {
+      for (const el of els) {
         const target = document.getElementById(el.id)
-        if (target) observer.observe(target)
+        if (target) observerRef.current.observe(target)
       }
+    }
 
-      window.addEventListener("hashchange", updateFromHash)
-    })
+    const queryHeadings = () => {
+      if (!mounted) return
+      const els = extractHeadings()
+      setHeadings((prev) => {
+        if (
+          prev.length === els.length &&
+          prev.every((h, i) => h.id === els[i].id && h.text === els[i].text)
+        ) {
+          return prev
+        }
+        return els
+      })
+      setupIntersectionObserver(els)
+    }
+
+    const onMutate = () => {
+      if (moTimer.current) clearTimeout(moTimer.current)
+      moTimer.current = setTimeout(queryHeadings, 80)
+    }
+
+    const main = document.querySelector("main")
+    if (main) {
+      mutationRef.current = new MutationObserver(onMutate)
+      mutationRef.current.observe(main, { childList: true, subtree: true })
+    }
+
+    queryHeadings()
+    updateFromHash()
+    window.addEventListener("hashchange", updateFromHash)
 
     return () => {
       mounted = false
-      cancelAnimationFrame(raf)
-      observer?.disconnect()
+      if (moTimer.current) clearTimeout(moTimer.current)
+      mutationRef.current?.disconnect()
+      observerRef.current?.disconnect()
       window.removeEventListener("hashchange", updateFromHash)
     }
   }, [pathname, updateFromHash])
@@ -82,7 +117,10 @@ export function TableOfContents() {
             <a
               key={h.id || `h-${i}`}
               href={`#${h.id}`}
-              onClick={() => { activeRef.current = h.id; setActiveId(h.id) }}
+              onClick={() => {
+                activeRef.current = h.id
+                setActiveId(h.id)
+              }}
               data-active={h.id === activeId}
               className="block text-sm text-muted-foreground pl-3 hover:text-foreground transition-colors data-[active=true]:text-foreground data-[active=true]:font-medium data-[active=true]:border-l-2 data-[active=true]:border-primary"
               style={{ paddingLeft: h.level === 3 ? "24px" : "12px" }}
