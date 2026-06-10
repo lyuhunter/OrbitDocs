@@ -11,4 +11,6 @@ services:
       - ./content:/app/content
     environment:
       - NODE_ENV=production
+      - PUID=1000  # 宿主用户 uid（id -u），与 content/ 属主一致
+      - PGID=1000  # 宿主用户 gid（id -g）
     restart: unless-stopped
