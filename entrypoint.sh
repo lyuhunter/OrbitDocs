@@ -5,8 +5,8 @@ PUID=${PUID:-1001}
 PGID=${PGID:-1001}
 
 if [ "$PUID" != "0" ] && [ "$PGID" != "0" ]; then
-  groupmod -g "$PGID" nodejs
-  usermod -u "$PUID" nextjs
+  sed -i "s/^nodejs:[^:]*:[^:]*:/nodejs:x:$PGID:/" /etc/group
+  sed -i "s/^nextjs:[^:]*:[^:]*:[^:]*:/nextjs:x:$PUID:$PGID:/" /etc/passwd
 fi
 
 # Internal files only (not mounted volumes content/ config.toml)
