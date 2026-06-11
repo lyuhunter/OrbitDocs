@@ -9,10 +9,10 @@ if [ "$PUID" != "0" ] && [ "$PGID" != "0" ]; then
   sed -i "s/^nextjs:[^:]*:[^:]*:[^:]*:/nextjs:x:$PUID:$PGID:/" /etc/passwd
 fi
 
-# Internal files ownership
-chown -R nextjs:nodejs /app/node_modules /app/public /app/.next /app/server.js /app/package.json 2>/dev/null || true
+# Internal files ownership (numeric IDs, avoid username conflict with node:1000)
+chown -R "$PUID:$PGID" /app/node_modules /app/public /app/.next /app/server.js /app/package.json 2>/dev/null || true
 
-# Mounted volumes: ensure world-readable (read-only for the app, no security risk)
+# Mounted volumes: ensure world-readable
 chmod -R o+rX /app/content /app/config.toml 2>/dev/null || true
 
-exec su-exec nextjs "$@"
+exec su-exec "$PUID:$PGID" "$@"
