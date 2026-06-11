@@ -35,7 +35,7 @@ docker compose up -d
 ```yaml
 services:
   app:
-    image: orbitdocs:latest
+    image: hunterlyu/orbitdocs:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -46,6 +46,8 @@ services:
       - ./content:/app/content
     environment:
       - NODE_ENV=production
+      - PUID=1000
+      - PGID=1000
     restart: unless-stopped
 ```
 
@@ -102,6 +104,58 @@ tsconfig.json
   - `content/` 文档源（构建时仅含 SSG 必需的少量文件，运行时通过 volume 覆盖）
 - `config.toml` 必须通过 volume 挂载，容器内不含配置文件
 - `HEALTHCHECK` 定期检测 `/docs` 响应
+
+## 权限说明
+
+Linux 部署时，volume 挂载的文件属主（宿主机 uid/gid）与容器内 `nextjs` 用户（uid 1001）不一致时，会因权限不足报错 `EACCES`。
+
+镜像内置 entrypoint 自动处理：
+
+```bash
+# 1. 将容器内 nextjs 用户的 uid/gid 改为 PUID/PGID
+sed -i "s/^nodejs:[^:]*:[^:]*:/nodejs:x:$PGID:/" /etc/group
+sed -i "s/^nextjs:[^:]*:[^:]*:[^:]*:/nextjs:x:$PUID:$PGID:/" /etc/passwd
+
+# 2. 内部文件属主修正（使用数字 ID，避免与 node:1000 冲突）
+chown -R "$PUID:$PGID" /app/node_modules /app/public /app/.next /app/server.js /app/package.json
+
+# 3. 挂载卷权限兜底（只读操作，无安全隐患）
+chmod -R o+rX /app/content /app/config.toml
+
+# 4. 以降权的 nextjs 用户启动
+exec su-exec "$PUID:$PGID" node server.js
+```
+
+**部署时需要传入宿主机 uid/gid**：
+
+```yaml
+services:
+  app:
+    image: hunterlyu/orbitdocs:latest
+    volumes:
+      - ./config.toml:/app/config.toml
+      - ./content:/app/content
+    environment:
+      - PUID=1000   # 宿主机上 id -u
+      - PGID=1000   # 宿主机上 id -g
+```
+
+建议在 `.env` 文件中设置：
+
+```bash
+# .env
+PUID=1000
+PGID=1000
+```
+
+```yaml
+services:
+  app:
+    image: hunterlyu/orbitdocs:latest
+    env_file: .env
+```
+
+> 容器只读挂载卷，`chmod o+rX` 不会造成安全风险。entrypoint 使用数字 UID/GID 而非用户名，避免与 `node:22-alpine` 自带 `node` 用户（UID 1000）冲突。
 
 ### 构建加速
 
@@ -169,3 +223,5 @@ npx serve out
 | `NODE_ENV` | 运行环境 | `production` |
 | `HOSTNAME` | 监听地址 | `0.0.0.0` |
 | `PORT` | 端口 | `3000` |
+| `PUID` | 容器用户 UID（与宿主机一致） | `1000` |
+| `PGID` | 容器用户 GID（与宿主机一致） | `1000` |
